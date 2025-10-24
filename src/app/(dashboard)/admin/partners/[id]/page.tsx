@@ -39,23 +39,11 @@ interface PartnerAnalytics {
     activeBikes: number
     totalEarnings: number
     totalInvestment: number
+    totalProfit: number
     averageSharePercentage: number
     averageEarningsPerBike: number
     profitMargin: number
   }
-  monthlyEarnings: Array<{
-    month: string
-    earnings: number
-    bikesSold: number
-  }>
-  brandAnalytics: Array<{
-    brand: string
-    totalBikes: number
-    soldBikes: number
-    activeBikes: number
-    totalEarnings: number
-    totalInvestment: number
-  }>
   bikeAnalytics: Array<{
     bikeId: string
     title: string
@@ -67,6 +55,8 @@ interface PartnerAnalytics {
     sharePercentage: number
     shareAmount: number
     earnings: number
+    profit: number
+    profitMargin: number
     createdAt: string
     updatedAt: string
   }>
@@ -196,7 +186,10 @@ export default function PartnerDetails() {
             <BarChart3 className="mr-2 h-4 w-4" />
             Full Analytics
           </Button>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => router.push(`/admin/partners/${partnerId}/edit`)}
+          >
             <Edit className="mr-2 h-4 w-4" />
             Edit Partner
           </Button>
@@ -261,6 +254,8 @@ export default function PartnerDetails() {
                 <Image
                   src={partner.profile}
                   alt={partner.name}
+                  height={4000}
+                  width={4000}
                   className="w-16 h-16 rounded-full"
                 />
               </>
@@ -404,6 +399,7 @@ export default function PartnerDetails() {
                 ))}
                 {analytics.bikeAnalytics.length > 5 && (
                   <Button 
+                    key={`view-all-${partnerId}`}
                     variant="outline" 
                     className="w-full"
                     onClick={() => router.push(`/admin/partners/${partnerId}/analytics`)}

@@ -42,6 +42,7 @@ export async function GET(
     let soldBikes = 0
     let activeBikes = 0
     let totalInvestment = 0
+    let totalProfit = 0
 
     const bikeAnalytics = bikesWithPartner.map(bike => {
       // Find this partner's share in the bike
@@ -58,8 +59,13 @@ export async function GET(
         activeBikes++
       }
 
+      // Calculate profit and profit margin
+      const profit = earnings - shareAmount
+      const profitMargin = shareAmount > 0 ? (profit / shareAmount) * 100 : 0
+
       totalEarnings += earnings
       totalInvestment += shareAmount
+      totalProfit += profit
 
       return {
         bikeId: bike._id,
@@ -72,6 +78,8 @@ export async function GET(
         sharePercentage,
         shareAmount,
         earnings,
+        profit,
+        profitMargin: Math.round(profitMargin * 100) / 100,
         createdAt: bike.createdAt,
         updatedAt: bike.updatedAt
       }
@@ -83,54 +91,6 @@ export async function GET(
       : 0
 
     const averageEarningsPerBike = soldBikes > 0 ? totalEarnings / soldBikes : 0
-
-    // Calculate monthly earnings (last 12 months)
-    const monthlyEarnings = []
-    const currentDate = new Date()
-    
-    for (let i = 11; i >= 0; i--) {
-      const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1)
-      const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() - i + 1, 0)
-      
-      const monthlyBikes = bikeAnalytics.filter(bike => {
-        const bikeDate = new Date(bike.updatedAt)
-        return bike.status === 'sold' && bikeDate >= monthStart && bikeDate <= monthEnd
-      })
-
-      const monthlyTotal = monthlyBikes.reduce((sum, bike) => sum + bike.earnings, 0)
-
-      monthlyEarnings.push({
-        month: monthStart.toISOString().substring(0, 7), // YYYY-MM format
-        earnings: monthlyTotal,
-        bikesSold: monthlyBikes.length
-      })
-    }
-
-    // Calculate brand-wise analytics
-    const brandAnalytics = bikeAnalytics.reduce((acc, bike) => {
-      if (!acc[bike.brand]) {
-        acc[bike.brand] = {
-          brand: bike.brand,
-          totalBikes: 0,
-          soldBikes: 0,
-          activeBikes: 0,
-          totalEarnings: 0,
-          totalInvestment: 0
-        }
-      }
-
-      acc[bike.brand].totalBikes++
-      acc[bike.brand].totalEarnings += bike.earnings
-      acc[bike.brand].totalInvestment += bike.shareAmount
-
-      if (bike.status === 'sold') {
-        acc[bike.brand].soldBikes++
-      } else if (bike.status === 'active' || bike.status === 'available') {
-        acc[bike.brand].activeBikes++
-      }
-
-      return acc
-    }, {} as Record<string, any>)
 
     const analytics = {
       partner: {
@@ -146,12 +106,11 @@ export async function GET(
         activeBikes,
         totalEarnings,
         totalInvestment,
+        totalProfit: Math.round(totalProfit * 100) / 100,
         averageSharePercentage: Math.round(averageSharePercentage * 100) / 100,
         averageEarningsPerBike: Math.round(averageEarningsPerBike * 100) / 100,
         profitMargin: totalInvestment > 0 ? Math.round((totalEarnings / totalInvestment) * 10000) / 100 : 0
       },
-      monthlyEarnings,
-      brandAnalytics: Object.values(brandAnalytics),
       bikeAnalytics: bikeAnalytics.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     }
 

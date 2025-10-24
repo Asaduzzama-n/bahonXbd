@@ -154,30 +154,51 @@ export const partnerToggleActiveSchema = z.object({
   isActive: z.boolean()
 })
 
-export const partnerCreateSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name cannot exceed 100 characters'),
-  phone: z.string().min(10, 'Phone must be at least 10 characters').max(15, 'Phone cannot exceed 15 characters'),
-  email: z.string().email('Invalid email format'),
-  address: z.object({
-    street: z.string().min(1, 'Street is required'),
-    city: z.string().min(1, 'City is required'),
-    state: z.string().min(1, 'State is required'),
-    zipCode: z.string().min(1, 'Zip code is required'),
-    country: z.string().min(1, 'Country is required')
-  }),
+export const partnerCreateSchema =  z.object({
+  name: z.string().min(1, 'Name is required'),
+  phone: z.string().min(1, 'Phone number is required'),
+  email: z.string().email('Invalid email address'),
+  address: z.string().min(1, 'Address is required'),
   documents: z.object({
-    nid: z.string().optional(),
-    drivingLicense: z.string().optional(),
-    proofOfAddress: z.string().optional()
-  }).optional(),
-  profile: z.object({
-    bio: z.string().optional(),
-    experience: z.string().optional(),
-    specialization: z.string().optional()
-  }).optional()
-})
+    nid: z.string().min(1, 'National ID is required'),
+    drivingLicense: z.string().min(1, 'Driving license is required'),
+    proofOfAddress: z.string().optional(),
+  }),
+  profile: z.string().optional(),
+});
 
 export const partnerUpdateSchema = partnerCreateSchema.partial()
+
+// Bike Wash Location validation schemas
+export const bikeWashLocationCreateSchema = z.object({
+  location: z.string().min(1, 'Location is required').max(200, 'Location cannot exceed 200 characters'),
+  map: z.string().min(1, 'Map URL is required').url('Invalid map URL'),
+  price: z.number().min(0, 'Price must be at least 0').max(10000, 'Price seems unrealistic'),
+  features: z.array(z.string().min(1, 'Feature cannot be empty')).optional().default([]),
+  status: z.enum(['active', 'inactive']).optional().default('active')
+})
+
+export const bikeWashLocationUpdateSchema = bikeWashLocationCreateSchema.partial()
+
+export const bikeWashLocationQuerySchema = z.object({
+  search: z.string().optional(),
+  status: z.string().optional().refine((val) => 
+    !val || ['active', 'inactive'].includes(val), 
+    { message: 'Invalid status value' }
+  ),
+  sortBy: z.string().optional().refine((val) => 
+    !val || ['createdAt', 'updatedAt', 'location', 'price'].includes(val), 
+    { message: 'Invalid sortBy field' }
+  ).transform((val) => val || 'createdAt'),
+  sortOrder: z.string().optional().refine((val) => 
+    !val || ['asc', 'desc'].includes(val), 
+    { message: 'Invalid sortOrder value' }
+  ).transform((val) => (val as 'asc' | 'desc') || 'desc')
+})
+
+export const bikeWashLocationToggleStatusSchema = z.object({
+  status: z.enum(['active', 'inactive'])
+})
 
 export type BikeInput = z.infer<typeof bikeSchema>
 export type BikeUpdateInput = z.infer<typeof bikeUpdateSchema>
@@ -187,3 +208,7 @@ export type PartnerQuery = z.infer<typeof partnerQuerySchema>
 export type PartnerToggleActive = z.infer<typeof partnerToggleActiveSchema>
 export type PartnerCreate = z.infer<typeof partnerCreateSchema>
 export type PartnerUpdate = z.infer<typeof partnerUpdateSchema>
+export type BikeWashLocationCreate = z.infer<typeof bikeWashLocationCreateSchema>
+export type BikeWashLocationUpdate = z.infer<typeof bikeWashLocationUpdateSchema>
+export type BikeWashLocationQuery = z.infer<typeof bikeWashLocationQuerySchema>
+export type BikeWashLocationToggleStatus = z.infer<typeof bikeWashLocationToggleStatusSchema>

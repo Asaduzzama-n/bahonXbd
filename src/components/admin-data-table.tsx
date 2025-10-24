@@ -87,7 +87,7 @@ export function AdminDataTable<TData, TValue>({
               <DropdownMenuItem 
                 onClick={() => onView(row.original)}
                 role="menuitem"
-                aria-label={`View details for ${(row.original as any)?.title || 'item'}`}
+                aria-label={`View details for ৳{(row.original as any)?.title || 'item'}`}
               >
                 <Eye className="mr-2 h-4 w-4" aria-hidden="true" />
                 View

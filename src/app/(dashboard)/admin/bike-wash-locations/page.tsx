@@ -9,32 +9,24 @@ import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Download, Search, Filter, Eye, BarChart3, Edit } from "lucide-react"
-import { Partner } from "@/lib/models"
+import { Plus, Download, Search, Filter, Eye, Edit, MapPin } from "lucide-react"
+import { BikeWashLocation } from "@/lib/models"
 import { format } from "date-fns"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
-export default function PartnersManagement() {
-  const [partners, setPartners] = useState<Partner[]>([])
+export default function BikeWashLocationsManagement() {
+  const [bikeWashLocations, setBikeWashLocations] = useState<BikeWashLocation[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 1,
-    totalCount: 0,
-    hasNextPage: false,
-    hasPrevPage: false,
-    limit: 50
-  })
   const router = useRouter()
 
   useEffect(() => {
-    fetchPartners()
+    fetchBikeWashLocations()
   }, [searchTerm, statusFilter])
 
-  const fetchPartners = async () => {
+  const fetchBikeWashLocations = async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
@@ -44,138 +36,141 @@ export default function PartnersManagement() {
       }
 
       if (statusFilter !== 'all') {
-        params.append('isActive', statusFilter)
+        params.append('status', statusFilter)
       }
 
-      const response = await fetch(`/api/admin/partners?${params}`)
+      const response = await fetch(`/api/admin/bike-wash-locations?${params}`)
       if (response.ok) {
         const data = await response.json()
-        setPartners(data.data.partners || [])
-        setPagination({
-          currentPage: 1,
-          totalPages: 1,
-          totalCount: data.data.total || 0,
-          hasNextPage: false,
-          hasPrevPage: false,
-          limit: data.data.total || 0
-        })
+        setBikeWashLocations(data.data.bikeWashLocations || [])
       } else {
-        toast.error('Failed to fetch partners')
+        toast.error('Failed to fetch bike wash locations')
       }
     } catch (error) {
-      console.error('Failed to fetch partners:', error)
-      toast.error('Failed to fetch partners')
+      console.error('Failed to fetch bike wash locations:', error)
+      toast.error('Failed to fetch bike wash locations')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleToggleActive = async (partner: Partner) => {
+  const handleToggleStatus = async (location: BikeWashLocation) => {
     try {
-      const response = await fetch(`/api/admin/partners/${partner._id}`, {
+      const response = await fetch(`/api/admin/bike-wash-locations/${location._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          isActive: !partner.isActive
+          status: location.status === 'active' ? 'inactive' : 'active'
         })
       })
 
       if (response.ok) {
         const data = await response.json()
-        setPartners(partners.map(p => 
-          p._id === partner._id ? { ...p, isActive: data.data.isActive } : p
+        setBikeWashLocations(bikeWashLocations.map(l => 
+          l._id === location._id ? { ...l, status: data.data.status } : l
         ))
-        toast.success(`Partner ${data.data.isActive ? 'activated' : 'deactivated'} successfully`)
+        toast.success(`Location ${data.data.status === 'active' ? 'activated' : 'deactivated'} successfully`)
       } else {
-        toast.error('Failed to update partner status')
+        toast.error('Failed to update location status')
       }
     } catch (error) {
-      console.error('Failed to toggle partner status:', error)
-      toast.error('Failed to update partner status')
+      console.error('Failed to toggle location status:', error)
+      toast.error('Failed to update location status')
     }
   }
 
-  const handleView = (partner: Partner) => {
-    router.push(`/admin/partners/${partner._id}`)
+  const handleView = (location: BikeWashLocation) => {
+    router.push(`/admin/bike-wash-locations/${location._id}`)
   }
 
-  const handleViewAnalytics = (partner: Partner) => {
-    router.push(`/admin/partners/${partner._id}/analytics`)
+  const handleEdit = (location: BikeWashLocation) => {
+    router.push(`/admin/bike-wash-locations/${location._id}/edit`)
   }
 
-  const handleEdit = (partner: Partner) => {
-    router.push(`/admin/partners/${partner._id}/edit`)
-  }
-
-  const handleDelete = async (partner: Partner) => {
-    if (confirm('Are you sure you want to deactivate this partner?')) {
+  const handleDelete = async (location: BikeWashLocation) => {
+    if (confirm('Are you sure you want to deactivate this bike wash location?')) {
       try {
-        const response = await fetch(`/api/admin/partners/${partner._id}`, {
+        const response = await fetch(`/api/admin/bike-wash-locations/${location._id}`, {
           method: 'DELETE'
         })
         if (response.ok) {
-          setPartners(partners.map(p => 
-            p._id === partner._id ? { ...p, isActive: false } : p
+          setBikeWashLocations(bikeWashLocations.map(l => 
+            l._id === location._id ? { ...l, status: 'inactive' } : l
           ))
-          toast.success('Partner deactivated successfully')
+          toast.success('Location deactivated successfully')
         } else {
-          toast.error('Failed to deactivate partner')
+          toast.error('Failed to deactivate location')
         }
       } catch (error) {
-        console.error('Failed to deactivate partner:', error)
-        toast.error('Failed to deactivate partner')
+        console.error('Failed to deactivate location:', error)
+        toast.error('Failed to deactivate location')
       }
     }
   }
 
-  const columns: ColumnDef<Partner>[] = [
+  const columns: ColumnDef<BikeWashLocation>[] = [
     {
-      accessorKey: "name",
-      header: createSortableHeader("Name"),
+      accessorKey: "location",
+      header: createSortableHeader("Location"),
       cell: ({ row }) => (
-        <div className="max-w-[200px]">
-          <div className="font-medium truncate">{row.getValue("name")}</div>
-          <div className="text-sm text-muted-foreground truncate">
-            {row.original.email}
+        <div className="max-w-[250px]">
+          <div className="font-medium truncate flex items-center">
+            <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+            {row.getValue("location")}
           </div>
         </div>
       ),
     },
     {
-      accessorKey: "phone",
-      header: "Phone",
+      accessorKey: "price",
+      header: createSortableHeader("Price"),
       cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.getValue("phone")}</div>
-      ),
+      <div className="flex items-center">
+        <span className="text-green-600 mr-1 ">৳</span>
+        {row.getValue("price")}
+      </div>
+    ),
     },
     {
-      accessorKey: "address",
-      header: "Location",
+      accessorKey: "features",
+      header: "Features",
       cell: ({ row }) => {
-        const address = row.getValue("address") as any
+        const features = row.getValue("features") as string[]
         return (
-          <div className="text-sm">
-            {address?.city}, {address?.state}
+          <div className="flex flex-wrap gap-1 max-w-[200px]">
+            {features && features.length > 0 ? (
+              features.slice(0, 2).map((feature, index) => (
+                <Badge key={index} variant="outline" className="text-xs">
+                  {feature}
+                </Badge>
+              ))
+            ) : (
+              <span className="text-muted-foreground text-sm">No features</span>
+            )}
+            {features && features.length > 2 && (
+              <Badge variant="outline" className="text-xs">
+                +{features.length - 2} more
+              </Badge>
+            )}
           </div>
         )
       },
     },
     {
-      accessorKey: "isActive",
+      accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const partner = row.original
+        const location = row.original
         return (
           <div className="flex items-center space-x-2">
             <Switch
-              checked={partner.isActive}
-              onCheckedChange={() => handleToggleActive(partner)}
-              // size="sm"
+              checked={location.status === 'active'}
+              onCheckedChange={() => handleToggleStatus(location)}
             />
-            <Badge variant={partner.isActive ? "default" : "secondary"}>
-              {partner.isActive ? "Active" : "Inactive"}
+            <Badge variant={location.status === 'active' ? "default" : "secondary"}>
+              {location.status === 'active' ? "Active" : "Inactive"}
             </Badge>
           </div>
         )
@@ -183,7 +178,7 @@ export default function PartnersManagement() {
     },
     {
       accessorKey: "createdAt",
-      header: createSortableHeader("Joined"),
+      header: createSortableHeader("Created"),
       cell: ({ row }) => (
         <div className="text-sm">
           {format(new Date(row.getValue("createdAt")), "MMM dd, yyyy")}
@@ -194,32 +189,24 @@ export default function PartnersManagement() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const partner = row.original
+        const location = row.original
         return (
           <div className="flex items-center space-x-2">
             <Button
-              key={`edit-${partner._id}`}
+              key={`edit-${location._id}`}
               variant="ghost"
               size="sm"
-              onClick={() => handleEdit(partner)}
+              onClick={() => handleEdit(location)}
             >
               <Edit className="h-4 w-4" />
             </Button>
             <Button
-              key={`view-${partner._id}`}
+              key={`view-${location._id}`}
               variant="ghost"
               size="sm"
-              onClick={() => handleView(partner)}
+              onClick={() => handleView(location)}
             >
               <Eye className="h-4 w-4" />
-            </Button>
-            <Button
-              key={`analytics-${partner._id}`}
-              variant="ghost"
-              size="sm"
-              onClick={() => handleViewAnalytics(partner)}
-            >
-              <BarChart3 className="h-4 w-4" />
             </Button>
           </div>
         )
@@ -227,13 +214,9 @@ export default function PartnersManagement() {
     },
   ]
 
-  const stats = {
-    total: pagination.totalCount,
-    active: Array.isArray(partners) ? partners.filter(p => p.isActive).length : 0,
-    inactive: Array.isArray(partners) ? partners.filter(p => !p.isActive).length : 0,
-  }
 
-  if (loading && partners.length === 0) {
+
+  if (loading && bikeWashLocations.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -246,9 +229,9 @@ export default function PartnersManagement() {
       {/* Page Header */}
       <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Partners Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Bike Wash Locations</h1>
           <p className="text-muted-foreground">
-            Manage partner relationships, track earnings, and monitor performance.
+            Manage bike wash locations, pricing, and service features.
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -256,15 +239,15 @@ export default function PartnersManagement() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button onClick={() => router.push('/admin/partners/new')}>
+          <Button onClick={() => router.push('/admin/bike-wash-locations/new')}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Partner
+            Add Location
           </Button>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Filter className="mr-2 h-5 w-5" />
@@ -277,7 +260,7 @@ export default function PartnersManagement() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name, phone, email, or location..."
+                  placeholder="Search by location or features..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -290,33 +273,33 @@ export default function PartnersManagement() {
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Partners</SelectItem>
-                  <SelectItem value="true">Active Only</SelectItem>
-                  <SelectItem value="false">Inactive Only</SelectItem>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  <SelectItem value="active">Active Only</SelectItem>
+                  <SelectItem value="inactive">Inactive Only</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Partners</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Locations</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
             <p className="text-xs text-muted-foreground">
-              All registered partners
+              All registered locations
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Partners</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Locations</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.active}</div>
@@ -328,7 +311,7 @@ export default function PartnersManagement() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inactive Partners</CardTitle>
+            <CardTitle className="text-sm font-medium">Inactive Locations</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{stats.inactive}</div>
@@ -337,25 +320,24 @@ export default function PartnersManagement() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Data Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Partners</CardTitle>
+          <CardTitle>All Bike Wash Locations</CardTitle>
           <CardDescription>
-            Comprehensive list of all partners with management options.
+            Comprehensive list of all bike wash locations with management options.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <AdminDataTable
             columns={columns}
-            data={partners}
-            searchKey="name"
+            data={bikeWashLocations}
+            searchKey="location"
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            
           />
         </CardContent>
       </Card>
