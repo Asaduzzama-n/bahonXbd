@@ -134,7 +134,7 @@ export default function AdminDashboard() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button>
+          <Button key="quick-add" >
             <Plus className="mr-2 h-4 w-4" />
             Quick Add
           </Button>
@@ -256,8 +256,8 @@ export default function AdminDashboard() {
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-2 gap-2">
-              {bikesByBrand.map((brand) => (
-                <div key={brand.name} className="flex items-center space-x-2">
+              {bikesByBrand.map((brand, index) => (
+                <div key={`brand-${index}`} className="flex items-center space-x-2">
                   <div 
                     className="h-3 w-3 rounded-full" 
                     style={{ backgroundColor: brand.color }}
@@ -280,9 +280,9 @@ export default function AdminDashboard() {
             <CardDescription>Common administrative tasks</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {quickActions.map((action) => (
+            {quickActions.map((action, index) => (
               <Button
-                key={action.title}
+                key={index}
                 variant="outline"
                 className="w-full justify-start h-auto p-4"
                 asChild
@@ -311,8 +311,8 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-center space-x-4">
+              {recentActivity.map((activity, index) => (
+                <div key={`activity-${index}`} className="flex items-center space-x-4">
                   <div className="flex-shrink-0">
                     {activity.type === 'order' && (
                       <ShoppingCart className="h-5 w-5 text-blue-500" />

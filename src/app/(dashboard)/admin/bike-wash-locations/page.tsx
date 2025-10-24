@@ -185,33 +185,6 @@ export default function BikeWashLocationsManagement() {
         </div>
       ),
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const location = row.original
-        return (
-          <div className="flex items-center space-x-2">
-            <Button
-              key={`edit-${location._id}`}
-              variant="ghost"
-              size="sm"
-              onClick={() => handleEdit(location)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button
-              key={`view-${location._id}`}
-              variant="ghost"
-              size="sm"
-              onClick={() => handleView(location)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-          </div>
-        )
-      },
-    },
   ]
 
 

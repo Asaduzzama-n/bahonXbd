@@ -190,48 +190,6 @@ export default function PartnersManagement() {
         </div>
       ),
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const partner = row.original
-        return (
-          <div className="flex items-center space-x-2">
-            <Button
-              key={`edit-${partner._id}`}
-              variant="ghost"
-              size="sm"
-              onClick={() => handleEdit(partner)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button
-              key={`view-${partner._id}`}
-              variant="ghost"
-              size="sm"
-              onClick={() => handleEdit(partner)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleView(partner)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-            <Button
-              key={`analytics-${partner._id}`}
-              variant="ghost"
-              size="sm"
-              onClick={() => handleViewAnalytics(partner)}
-            >
-              <BarChart3 className="h-4 w-4" />
-            </Button>
-          </div>
-        )
-      },
-    },
   ]
 
   const stats = {
@@ -259,11 +217,11 @@ export default function PartnersManagement() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline">
+          <Button key="export" variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button onClick={() => router.push('/admin/partners/new')}>
+          <Button key="add-partner" onClick={() => router.push('/admin/partners/new')}>
             <Plus className="mr-2 h-4 w-4" />
             Add Partner
           </Button>

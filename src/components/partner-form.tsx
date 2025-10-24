@@ -163,17 +163,17 @@ export default function PartnerForm({ partner, onSubmit, onCancel, isLoading = f
         <div className="flex items-center space-x-2">
           {partner && (
             <>
-              <Button variant="outline" onClick={handleViewDetails}>
+              <Button key="viewDetails" variant="outline" onClick={handleViewDetails}>
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </Button>
-              <Button variant="outline" onClick={handleViewAnalytics}>
+              <Button key="viewAnalytics" variant="outline" onClick={handleViewAnalytics}>
                 <BarChart3 className="mr-2 h-4 w-4" />
                 Analytics
               </Button>
             </>
           )}
-          <Button variant="outline" onClick={onCancel}>
+          <Button key="back" variant="outline" onClick={onCancel}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
@@ -362,10 +362,10 @@ export default function PartnerForm({ partner, onSubmit, onCancel, isLoading = f
 
         {/* Submit Button */}
         <div className="flex justify-end space-x-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button key="cancel" type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button key="submit" type="submit" disabled={isLoading}>
             {isLoading ? 'Saving...' : partner ? 'Update Partner' : 'Create Partner'}
           </Button>
         </div>

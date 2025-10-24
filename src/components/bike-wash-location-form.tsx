@@ -139,12 +139,12 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
         </div>
         <div className="flex items-center space-x-2">
           {location && (
-            <Button variant="outline" onClick={handleViewDetails}>
+            <Button key="viewDetails" variant="outline" onClick={handleViewDetails}>
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </Button>
           )}
-          <Button variant="outline" onClick={onCancel}>
+          <Button key="back" variant="outline" onClick={onCancel}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
@@ -218,7 +218,7 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
                 rows={3}
               />
               {errors.map && (
-                <p className="text-sm text-red-500">{errors.map}</p>
+                <p  className="text-sm text-red-500">{errors.map}</p>
               )}
             </div>
 
@@ -296,10 +296,10 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
 
         {/* Submit Button */}
         <div className="flex justify-end space-x-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button key="cancel" type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button key="submit" type="submit" disabled={isLoading}>
             {isLoading ? 'Saving...' : location ? 'Update Location' : 'Create Location'}
           </Button>
         </div>

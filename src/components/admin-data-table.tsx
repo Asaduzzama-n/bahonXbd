@@ -160,7 +160,7 @@ export function AdminDataTable<TData, TValue>({
           />
         </div>
         <div className="flex items-center space-x-2" role="toolbar" aria-label="Table actions">
-          <Button variant="outline" size="sm" aria-label="Open filter options">
+          <Button key="filter" variant="outline" size="sm" aria-label="Open filter options">
             <Filter className="mr-2 h-4 w-4" aria-hidden="true" />
             Filter
           </Button>
