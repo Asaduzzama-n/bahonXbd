@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Download, Search, Filter, Eye, BarChart3 } from "lucide-react"
+import { Plus, Download, Search, Filter, Eye, BarChart3, Edit } from "lucide-react"
 import { Partner } from "@/lib/models"
 import { format } from "date-fns"
 import { useRouter } from "next/navigation"
@@ -106,8 +106,7 @@ export default function PartnersManagement() {
   }
 
   const handleEdit = (partner: Partner) => {
-    // For now, we'll use the view page for editing
-    router.push(`/admin/partners/${partner._id}`)
+    router.push(`/admin/partners/${partner._id}/edit`)
   }
 
   const handleDelete = async (partner: Partner) => {
@@ -201,6 +200,13 @@ export default function PartnersManagement() {
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => handleEdit(partner)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => handleView(partner)}
             >
               <Eye className="h-4 w-4" />
@@ -247,7 +253,7 @@ export default function PartnersManagement() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button onClick={() => router.push('/admin/partners/add')}>
+          <Button onClick={() => router.push('/admin/partners/new')}>
             <Plus className="mr-2 h-4 w-4" />
             Add Partner
           </Button>

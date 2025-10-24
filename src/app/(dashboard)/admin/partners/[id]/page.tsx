@@ -196,7 +196,10 @@ export default function PartnerDetails() {
             <BarChart3 className="mr-2 h-4 w-4" />
             Full Analytics
           </Button>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => router.push(`/admin/partners/${partnerId}/edit`)}
+          >
             <Edit className="mr-2 h-4 w-4" />
             Edit Partner
           </Button>
