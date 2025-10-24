@@ -209,6 +209,13 @@ export default function PartnersManagement() {
               key={`view-${partner._id}`}
               variant="ghost"
               size="sm"
+              onClick={() => handleEdit(partner)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => handleView(partner)}
             >
               <Eye className="h-4 w-4" />
