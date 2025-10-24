@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken'
+import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'mySecretKey')
 
 export interface JWTPayload {
   userId: string
@@ -19,27 +19,37 @@ export class AuthUtils {
     return await bcrypt.compare(password, hashedPassword)
   }
 
-  static generateToken(payload: JWTPayload): string {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
+  static async generateToken(payload: any): Promise<string> {
+    return await new SignJWT(payload)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('7d')
+      .sign(JWT_SECRET)
   }
 
-  static verifyToken(token: string): JWTPayload | null {
+  static async verifyToken(token: string): Promise<JWTPayload | null> {
     try {
-      return jwt.verify(token, JWT_SECRET) as JWTPayload
+      const { payload } = await jwtVerify(token, JWT_SECRET)
+      return payload as any
     } catch (error) {
+      console.error('JWT Verification Error:', error)
       return null
     }
   }
 
-  static generateVerificationToken(email: string): string {
-    return jwt.sign({ email, type: 'verification' }, JWT_SECRET, { expiresIn: '24h' })
+  static async generateVerificationToken(email: string): Promise<string> {
+    return await new SignJWT({ email, type: 'verification' })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('24h')
+      .sign(JWT_SECRET)
   }
 
-  static verifyEmailToken(token: string): { email: string } | null {
+  static async verifyEmailToken(token: string): Promise<{ email: string } | null> {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as any
-      if (decoded.type === 'verification') {
-        return { email: decoded.email }
+      const { payload } = await jwtVerify(token, JWT_SECRET)
+      if (payload.type === 'verification') {
+        return { email: payload.email as string }
       }
       return null
     } catch (error) {
@@ -47,15 +57,19 @@ export class AuthUtils {
     }
   }
 
-  static generateResetToken(email: string): string {
-    return jwt.sign({ email, type: 'reset' }, JWT_SECRET, { expiresIn: '1h' })
+  static async generateResetToken(email: string): Promise<string> {
+    return await new SignJWT({ email, type: 'reset' })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1h')
+      .sign(JWT_SECRET)
   }
 
-  static verifyResetToken(token: string): { email: string } | null {
+  static async verifyResetToken(token: string): Promise<{ email: string } | null> {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as any
-      if (decoded.type === 'reset') {
-        return { email: decoded.email }
+      const { payload } = await jwtVerify(token, JWT_SECRET)
+      if (payload.type === 'reset') {
+        return { email: payload.email as string }
       }
       return null
     } catch (error) {

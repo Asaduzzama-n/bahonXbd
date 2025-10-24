@@ -1,4 +1,5 @@
-import { MongoClient, Db } from 'mongodb'
+import mongoose from 'mongoose'
+import { User, Bike, PurchaseOrder, BikeWashLocation, Expenses, Partner } from './models'
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bike-platform'
 
@@ -6,34 +7,35 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local')
 }
 
-interface GlobalMongo {
-  conn: MongoClient | null
-  promise: Promise<MongoClient> | null
+interface GlobalMongoose {
+  conn: typeof mongoose | null
+  promise: Promise<typeof mongoose> | null
 }
 
 declare global {
-  var __mongo: GlobalMongo | undefined
+  var __mongoose: GlobalMongoose | undefined
 }
 
-let cached = global.__mongo
+let cached = global.__mongoose
 
 if (!cached) {
-  cached = global.__mongo = { conn: null, promise: null }
+  cached = global.__mongoose = { conn: null, promise: null }
 }
 
-export async function connectToDatabase(): Promise<{ client: MongoClient; db: Db }> {
+export async function connectToDatabase(): Promise<typeof mongoose> {
   if (cached!.conn) {
-    return { client: cached!.conn, db: cached!.conn.db() }
+    return cached!.conn
   }
 
   if (!cached!.promise) {
     const opts = {
+      bufferCommands: false,
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     }
 
-    cached!.promise = MongoClient.connect(MONGODB_URI, opts)
+    cached!.promise = mongoose.connect(MONGODB_URI, opts)
   }
 
   try {
@@ -43,171 +45,183 @@ export async function connectToDatabase(): Promise<{ client: MongoClient; db: Db
     throw e
   }
 
-  return { client: cached!.conn, db: cached!.conn.db() }
+  return cached!.conn
 }
 
-// Database schemas and types
-export interface User {
-  _id?: string
-  name: string
-  email: string
-  password: string
-  phone?: string
-  role: 'user' | 'admin'
-  isEmailVerified: boolean
-  verificationCode?: string
-  verificationExpiry?: Date
-  resetPasswordToken?: string
-  resetPasswordExpiry?: Date
-  lastLogin?: Date
-  createdAt: Date
-  updatedAt: Date
-}
+// User Schema
+const userSchema = new mongoose.Schema<User>({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  phone: { type: String },
+  profile: { type: String },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  isEmailVerified: { type: Boolean, default: false },
+  verificationCode: { type: String },
+  verificationExpiry: { type: Date },
+  resetPasswordToken: { type: String },
+  resetPasswordExpiry: { type: Date },
+  lastLogin: { type: Date },
+}, {
+  timestamps: true
+})
 
-export interface Bike {
-  _id?: string
-  title: string
-  description: string
-  brand: string
-  model: string
-  year: number
-  condition: 'excellent' | 'good' | 'fair' | 'poor'
-  mileage: number
-  price: number
-  location: string
-  images: string[]
-  features: string[]
+// Bike Schema
+const bikeSchema = new mongoose.Schema<Bike>({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  brand: { type: String, required: true },
+  model: { type: String, required: true },
+  year: { type: Number },
+  condition: { type: String, enum: ['excellent', 'good', 'fair', 'poor'], required: true },
+  mileage: { type: Number, required: true },
+  price: { type: Number, required: true },
+  myShare: { type: Number, required: true },
+  partners: [{
+    partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner',required: true },
+    percentage: { type: Number,required: true }
+  }],
+  images: [{ type: String }],
+  features: [{ type: String }],
+  availableDocs: [{ type: String }],
   specifications: {
-    engine: string
-    transmission: string
-    fuelType: string
-    displacement: string
-    maxPower: string
-    maxTorque: string
-    topSpeed: string
-    fuelTank: string
-    weight: string
-    [key: string]: string
-  }
-  serviceHistory: {
-    date: string
-    description: string
-    cost: number
-  }[]
-  sellerId: string
-  sellerName: string
-  sellerPhone: string
-  sellerEmail: string
-  status: 'active' | 'sold' | 'pending' | 'inactive'
-  isVerified: boolean
-  isFeatured: boolean
-  isActive: boolean
-  views: number
-  createdAt: Date
-  updatedAt: Date
-}
+    engine: { type: String },
+    transmission: { type: String },
+    fuelType: { type: String },
+    displacement: { type: String },
+    maxPower: { type: String },
+    maxTorque: { type: String },
+    topSpeed: { type: String },
+    fuelTank: { type: String },
+    weight: { type: String }
+  },
+  serviceHistory: [{
+    date: { type: String,required: true },
+    description: { type: String,required: true },
+    cost: { type: Number,required: true }
+  }],
+  status: { type: String, enum: ['active', 'sold', 'pending', 'inactive', 'available'], default: 'active' },
+  isFeatured: { type: Boolean, default: false },
+  views: { type: Number, default: 0 },
+}, {
+  timestamps: true
+})
 
-export interface Order {
-  _id?: string
-  bikeId: string
-  buyerId: string
-  sellerId: string
-  amount: number
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded'
-  paymentMethod: string
-  notes?: string
-  createdAt: Date
-  updatedAt: Date
-}
+// Purchase Order Schema
+const purchaseOrderSchema = new mongoose.Schema<PurchaseOrder>({
+  bikeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bike', required: true },
+  buyerName: { type: String, required: true },
+  buyerPhone: { type: String, required: true },
+  buyerEmail: { type: String },
+  buyerAddress: { type: String },
+  buyerDocs: {
+    nid: { type: String, required: true },
+    drivingLicense: { type: String, required: true },
+    proofOfAddress: { type: String }
+  },
+  amount: { type: Number, required: true },
+  profit: { type: Number, required: true },
+  partnersProfit: [
+    {
+      partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner', required: true },
+      profit: { type: Number, required: true }
+    }
+  ],
+  status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
+  paymentStatus: { type: String, enum: ['pending', 'paid', 'partial', 'failed', 'refunded'], default: 'pending' },
+  paymentMethod: { type: String, enum: ['Bkash', 'Cash', 'Bank Transfer'], required: true },
+  dueAmount: { type: Number },
+  dueDate: { type: Date },
+  notes: { type: String },
+}, {
+  timestamps: true
+})
 
-export interface BikeWashBooking {
-  _id?: string
-  userId: string
-  userName: string
-  userPhone: string
-  userEmail: string
-  serviceType: string
-  location: string
-  scheduledDate: Date
-  scheduledTime: string
-  bikeDetails: {
-    brand: string
-    model: string
-    year: number
-  }
-  price: number
-  status: 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled'
-  notes?: string
-  createdAt: Date
-  updatedAt: Date
-}
+// Bike Wash Location Schema
+const bikeWashLocationSchema = new mongoose.Schema<BikeWashLocation>({
+  location: { type: String, required: true },
+  map: { type: String, required: true },
+  price: { type: Number, required: true },
+  features: [{ type: String }],
+  status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+}, {
+  timestamps: true
+})
 
-// Collection names
-export const COLLECTIONS = {
-  USERS: 'users',
-  BIKES: 'bikes',
-  ORDERS: 'orders',
-  BIKE_WASH_BOOKINGS: 'bikeWashBookings',
-} as const
+// Expenses Schema
+const expensesSchema = new mongoose.Schema<Expenses>({
+  bikeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bike' },
+  type: { type: String, enum: ['repair', 'maintenance', 'transportation', 'other'], required: true },
+  amount: { type: Number, required: true },
+  date: { type: Date, required: true },
+}, {
+  timestamps: true
+})
+
+// Partner Schema
+const partnerSchema = new mongoose.Schema<Partner>({
+  name: { type: String, required: true },
+  phone: { type: String, required: true },
+  email: { type: String, required: true },
+  address: { type: String, required: true },
+  documents: {
+    nid: { type: String, required: true },
+    drivingLicense: { type: String, required: true },
+    proofOfAddress: { type: String }
+  },
+  profile: { type: String },
+}, {
+  timestamps: true
+})
+
+// Create indexes
+userSchema.index({ email: 1 })
+bikeSchema.index({ brand: 1, model: 1 })
+bikeSchema.index({ price: 1 })
+bikeSchema.index({ status: 1 })
+bikeSchema.index({ isFeatured: 1 })
+purchaseOrderSchema.index({ bikeId: 1 })
+purchaseOrderSchema.index({ status: 1 })
+
+// Export models
+export const UserModel = mongoose.models.User || mongoose.model<User>('User', userSchema)
+export const BikeModel = mongoose.models.Bike || mongoose.model<Bike>('Bike', bikeSchema)
+export const PurchaseOrderModel = mongoose.models.PurchaseOrder || mongoose.model<PurchaseOrder>('PurchaseOrder', purchaseOrderSchema)
+export const BikeWashLocationModel = mongoose.models.BikeWashLocation || mongoose.model<BikeWashLocation>('BikeWashLocation', bikeWashLocationSchema)
+export const ExpensesModel = mongoose.models.Expenses || mongoose.model<Expenses>('Expenses', expensesSchema)
+export const PartnerModel = mongoose.models.Partner || mongoose.model<Partner>('Partner', partnerSchema)
 
 // Database utilities
 export class DatabaseUtils {
   static async createIndexes() {
-    const { db } = await connectToDatabase()
-
-    // Users collection indexes
-    await db.collection(COLLECTIONS.USERS).createIndex({ email: 1 }, { unique: true })
-    await db.collection(COLLECTIONS.USERS).createIndex({ verificationCode: 1 })
-    await db.collection(COLLECTIONS.USERS).createIndex({ resetPasswordToken: 1 })
-
-    // Bikes collection indexes
-    await db.collection(COLLECTIONS.BIKES).createIndex({ sellerId: 1 })
-    await db.collection(COLLECTIONS.BIKES).createIndex({ brand: 1 })
-    await db.collection(COLLECTIONS.BIKES).createIndex({ condition: 1 })
-    await db.collection(COLLECTIONS.BIKES).createIndex({ price: 1 })
-    await db.collection(COLLECTIONS.BIKES).createIndex({ location: 1 })
-    await db.collection(COLLECTIONS.BIKES).createIndex({ status: 1 })
-    await db.collection(COLLECTIONS.BIKES).createIndex({ isActive: 1 })
-    await db.collection(COLLECTIONS.BIKES).createIndex({ isFeatured: 1 })
-    await db.collection(COLLECTIONS.BIKES).createIndex({ createdAt: -1 })
-
-    // Orders collection indexes
-    await db.collection(COLLECTIONS.ORDERS).createIndex({ buyerId: 1 })
-    await db.collection(COLLECTIONS.ORDERS).createIndex({ sellerId: 1 })
-    await db.collection(COLLECTIONS.ORDERS).createIndex({ bikeId: 1 })
-    await db.collection(COLLECTIONS.ORDERS).createIndex({ status: 1 })
-
-    // Bike wash bookings collection indexes
-    await db.collection(COLLECTIONS.BIKE_WASH_BOOKINGS).createIndex({ userId: 1 })
-    await db.collection(COLLECTIONS.BIKE_WASH_BOOKINGS).createIndex({ scheduledDate: 1 })
-    await db.collection(COLLECTIONS.BIKE_WASH_BOOKINGS).createIndex({ status: 1 })
+    await connectToDatabase()
+    // Indexes are automatically created by Mongoose schemas
+    console.log('Database indexes created successfully')
   }
 
   static async seedData() {
-    const { db } = await connectToDatabase()
-
+    await connectToDatabase()
+    
     // Check if admin user exists
-    const adminExists = await db.collection(COLLECTIONS.USERS).findOne({ 
-      email: 'admin@bahonxbd.com' 
-    })
-
+    const adminExists = await UserModel.findOne({ email: 'admin@bikeplatform.com' })
+    
     if (!adminExists) {
-      // Create admin user
       const bcrypt = require('bcryptjs')
       const hashedPassword = await bcrypt.hash('admin123', 12)
-
-      await db.collection(COLLECTIONS.USERS).insertOne({
+      
+      await UserModel.create({
         name: 'Admin User',
-        email: 'admin@bahonxbd.com',
+        email: 'admin@bikeplatform.com',
         password: hashedPassword,
         role: 'admin',
         isEmailVerified: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
       })
-
-      console.log('Admin user created: admin@bahonxbd.com / admin123')
+      
+      console.log('Admin user created successfully')
     }
+    
+    console.log('Database seeded successfully')
   }
 }
+
+export default mongoose

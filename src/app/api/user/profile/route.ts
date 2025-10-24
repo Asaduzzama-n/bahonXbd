@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { MongoClient, ObjectId } from 'mongodb'
+import { connectToDatabase, UserModel } from '@/lib/database'
 import { AuthUtils } from '@/lib/auth'
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bike-platform'
 
 export async function GET(request: NextRequest) {
   try {
     // Get token from cookie
-    const token = request.cookies.get('token')?.value
+    const token = request.cookies.get('auth-token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -17,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify token
-    const decoded = AuthUtils.verifyToken(token)
+    const decoded = await AuthUtils.verifyToken(token)
     if (!decoded) {
       return NextResponse.json(
         { error: 'Invalid token' },
@@ -25,27 +23,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Connect to MongoDB
-    const client = new MongoClient(MONGODB_URI)
-    await client.connect()
-    const db = client.db()
-    const usersCollection = db.collection('users')
+    await connectToDatabase()
 
-    // Get user profile
-    const user = await usersCollection.findOne(
-      { _id: new ObjectId(decoded.userId) },
-      { 
-        projection: { 
-          password: 0, 
-          verificationCode: 0, 
-          verificationExpiry: 0,
-          resetPasswordToken: 0,
-          resetPasswordExpiry: 0
-        } 
-      }
+    // Get user profile using Mongoose
+    const user = await UserModel.findById(decoded.userId).select(
+      '-password -verificationCode -verificationExpiry -resetPasswordToken -resetPasswordExpiry'
     )
-
-    await client.close()
 
     if (!user) {
       return NextResponse.json(
@@ -54,7 +37,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(user, { status: 200 })
+    // Convert to plain object and transform _id
+    const userObj = user.toObject()
+    userObj.id = userObj._id.toString()
+    delete userObj._id
+
+    return NextResponse.json(userObj, { status: 200 })
 
   } catch (error) {
     console.error('Get profile error:', error)
@@ -68,7 +56,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Get token from cookie
-    const token = request.cookies.get('token')?.value
+    const token = request.cookies.get('auth-token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -78,7 +66,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify token
-    const decoded = AuthUtils.verifyToken(token)
+    const decoded = await AuthUtils.verifyToken(token)
     if (!decoded) {
       return NextResponse.json(
         { error: 'Invalid token' },
@@ -96,52 +84,39 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    // Connect to MongoDB
-    const client = new MongoClient(MONGODB_URI)
-    await client.connect()
-    const db = client.db()
-    const usersCollection = db.collection('users')
+    await connectToDatabase()
 
-    // Update user profile
+    // Update user profile using Mongoose
     const updateData: any = {
-      name: name.trim(),
-      updatedAt: new Date()
+      name: name.trim()
     }
 
     if (phone !== undefined) {
       updateData.phone = phone.trim()
     }
 
-    const result = await usersCollection.updateOne(
-      { _id: new ObjectId(decoded.userId) },
-      { $set: updateData }
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      decoded.userId,
+      { $set: updateData },
+      { 
+        new: true,
+        select: '-password -verificationCode -verificationExpiry -resetPasswordToken -resetPasswordExpiry'
+      }
     )
 
-    if (result.matchedCount === 0) {
-      await client.close()
+    if (!updatedUser) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       )
     }
 
-    // Get updated user profile
-    const updatedUser = await usersCollection.findOne(
-      { _id: new ObjectId(decoded.userId) },
-      { 
-        projection: { 
-          password: 0, 
-          verificationCode: 0, 
-          verificationExpiry: 0,
-          resetPasswordToken: 0,
-          resetPasswordExpiry: 0
-        } 
-      }
-    )
+    // Convert to plain object and transform _id
+    const userObj = updatedUser.toObject()
+    userObj.id = userObj._id.toString()
+    delete userObj._id
 
-    await client.close()
-
-    return NextResponse.json(updatedUser, { status: 200 })
+    return NextResponse.json(userObj, { status: 200 })
 
   } catch (error) {
     console.error('Update profile error:', error)

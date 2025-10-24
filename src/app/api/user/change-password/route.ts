@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { MongoClient, ObjectId } from 'mongodb'
+import { connectToDatabase, UserModel } from '@/lib/database'
 import { AuthUtils } from '@/lib/auth'
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bike-platform'
 
 export async function PUT(request: NextRequest) {
   try {
     // Get token from cookie
-    const token = request.cookies.get('token')?.value
+    const token = request.cookies.get('auth-token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -17,7 +15,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify token
-    const decoded = AuthUtils.verifyToken(token)
+    const decoded = await AuthUtils.verifyToken(token)
     if (!decoded) {
       return NextResponse.json(
         { error: 'Invalid token' },
@@ -42,19 +40,12 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    // Connect to MongoDB
-    const client = new MongoClient(MONGODB_URI)
-    await client.connect()
-    const db = client.db()
-    const usersCollection = db.collection('users')
+    await connectToDatabase()
 
-    // Get user
-    const user = await usersCollection.findOne({ 
-      _id: new ObjectId(decoded.userId) 
-    })
+    // Get user using Mongoose
+    const user = await UserModel.findById(decoded.userId)
 
     if (!user) {
-      await client.close()
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -64,7 +55,6 @@ export async function PUT(request: NextRequest) {
     // Verify current password
     const isCurrentPasswordValid = await AuthUtils.comparePassword(currentPassword, user.password)
     if (!isCurrentPasswordValid) {
-      await client.close()
       return NextResponse.json(
         { error: 'Current password is incorrect' },
         { status: 400 }
@@ -74,18 +64,15 @@ export async function PUT(request: NextRequest) {
     // Hash new password
     const hashedNewPassword = await AuthUtils.hashPassword(newPassword)
 
-    // Update password
-    await usersCollection.updateOne(
-      { _id: new ObjectId(decoded.userId) },
+    // Update password using Mongoose
+    await UserModel.findByIdAndUpdate(
+      decoded.userId,
       {
         $set: {
-          password: hashedNewPassword,
-          updatedAt: new Date()
+          password: hashedNewPassword
         }
       }
     )
-
-    await client.close()
 
     return NextResponse.json(
       { message: 'Password updated successfully' },

@@ -1,49 +1,57 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { AuthUtils } from '@/lib/auth'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { jwtVerify } from 'jose'
 
-export function middleware(request: NextRequest) {
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'mySecretKey')
+
+async function verifyToken(token: string) {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET)
+    return payload
+  } catch (error) {
+    return null
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Protected admin routes
+  // Protect admin routes
   if (pathname.startsWith('/admin')) {
     const token = request.cookies.get('auth-token')?.value
 
     if (!token) {
-      return NextResponse.redirect(new URL('/login?redirect=/admin', request.url))
+      return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    const payload = AuthUtils.verifyToken(token)
-    if (!payload || payload.role !== 'admin') {
-      return NextResponse.redirect(new URL('/login?error=unauthorized', request.url))
+    try {
+      const decoded = await verifyToken(token)
+      if (!decoded || decoded.role !== 'admin') {
+        return NextResponse.redirect(new URL('/login', request.url))
+      }
+    } catch (error) {
+      return NextResponse.redirect(new URL('/login', request.url))
     }
   }
 
-  // Protected API routes
-  if (pathname.startsWith('/api/admin') || 
-      (pathname.startsWith('/api/bikes') && request.method !== 'GET')) {
+  // Protect API routes that require authentication
+  if (pathname.startsWith('/api/') && 
+      (pathname.includes('/admin') || 
+       pathname.includes('/profile') || 
+       pathname.includes('/orders'))) {
     const token = request.cookies.get('auth-token')?.value
 
     if (!token) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const payload = AuthUtils.verifyToken(token)
-    if (!payload) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      )
-    }
-
-    // For admin API routes, check admin role
-    if (pathname.startsWith('/api/admin') && payload.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      )
+    try {
+      const decoded = await verifyToken(token)
+      if (!decoded) {
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+      }
+    } catch (error) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
   }
 

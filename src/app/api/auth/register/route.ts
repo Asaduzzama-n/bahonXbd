@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDatabase } from '@/lib/mongodb'
+import { connectToDatabase, UserModel } from '@/lib/database'
 import { AuthUtils, generateVerificationCode } from '@/lib/auth'
 import { EmailService } from '@/lib/email'
 
@@ -32,11 +32,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const db = await getDatabase()
-    const usersCollection = db.collection('users')
+    await connectToDatabase()
 
     // Check if user already exists
-    const existingUser = await usersCollection.findOne({ email })
+    const existingUser = await UserModel.findOne({ email })
     if (existingUser) {
       return NextResponse.json(
         { error: 'User with this email already exists' },
@@ -50,8 +49,8 @@ export async function POST(request: NextRequest) {
     // Generate verification code
     const verificationCode = generateVerificationCode()
 
-    // Create user document
-    const newUser = {
+    // Create user using Mongoose model
+    const newUser = new UserModel({
       name,
       email,
       password: hashedPassword,
@@ -60,12 +59,10 @@ export async function POST(request: NextRequest) {
       isEmailVerified: false,
       verificationCode,
       verificationCodeExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
+    })
 
-    // Insert user into database
-    const result = await usersCollection.insertOne(newUser)
+    // Save user to database
+    const savedUser = await newUser.save()
 
     // Send verification email
     const emailSent = await EmailService.sendVerificationEmail(email, verificationCode)
@@ -77,7 +74,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         message: 'User registered successfully. Please check your email for verification code.',
-        userId: result.insertedId,
+        userId: savedUser._id.toString(),
         emailSent,
       },
       { status: 201 }

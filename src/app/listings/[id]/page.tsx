@@ -22,17 +22,25 @@ const mockBike: Bike = {
   price: 285000,
   mileage: 2500,
   condition: 'excellent',
-  engineCapacity: 155,
-  fuelType: 'petrol',
-  transmission: 'manual',
-  color: 'Racing Blue',
-  location: 'Dhaka',
   description: 'Well-maintained Yamaha R15 V4 with all original parts and service records. This bike has been garage-kept and serviced regularly. Perfect for both city commuting and weekend rides. All documents are clear and ready for transfer.',
   images: ['/api/placeholder/800/600', '/api/placeholder/800/600', '/api/placeholder/800/600'],
   features: ['ABS', 'LED Headlight', 'Digital Display', 'Slipper Clutch', 'USD Forks', 'Dual Channel ABS'],
-  isVerified: true,
-  isFeatured: true,
+  specifications: {
+    engine: '155 cc',
+    fuelType: 'petrol',
+    transmission: 'manual',
+    color: 'Racing Blue',
+    maxPower: '18.6 PS',
+    maxTorque: '14.1 Nm',
+    fuelTankCapacity: '11 L',
+    weight: '142 kg'
+  },
+  serviceHistory: [],
+
   status: 'available',
+  isFeatured: true,
+  isActive: true,
+  views: 125,
   createdAt: new Date('2024-01-15'),
   updatedAt: new Date('2024-01-15')
 }
@@ -134,11 +142,6 @@ export default function BikeDetailsPage() {
                   Featured
                 </Badge>
               )}
-              {bike.isVerified && (
-                <Badge className="absolute top-4 right-4 bg-green-500 text-white">
-                  Verified
-                </Badge>
-              )}
             </div>
             
             {/* Thumbnail Gallery */}
@@ -208,19 +211,16 @@ export default function BikeDetailsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Fuel className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Engine: {bike.engineCapacity}cc</span>
+                    <span className="text-sm">Engine: {bike.specifications.engineCapacity}cc</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Transmission: {bike.transmission}</span>
+                    <span className="text-sm">Transmission: {bike.specifications.transmission}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Location: {bike.location}</span>
-                  </div>
+                
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full border-2 border-muted-foreground"></span>
-                    <span className="text-sm">Color: {bike.color}</span>
+                    <span className="text-sm">Color: {bike.specifications.color}</span>
                   </div>
                 </div>
               </CardContent>

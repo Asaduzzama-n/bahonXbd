@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDatabase } from '@/lib/mongodb'
+import { connectToDatabase, UserModel } from '@/lib/database'
 import { AuthUtils } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
@@ -13,11 +13,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const db = await getDatabase()
-    const usersCollection = db.collection('users')
+    await connectToDatabase()
 
     // Find user by email
-    const user = await usersCollection.findOne({ email })
+    const user = await UserModel.findOne({ email })
     if (!user) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
@@ -43,21 +42,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate JWT token
-    const token = AuthUtils.generateToken({
+    const token = await AuthUtils.generateToken({
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
     })
 
-    // Update last login
-    await usersCollection.updateOne(
-      { _id: user._id },
-      {
-        $set: {
-          lastLogin: new Date(),
-          updatedAt: new Date(),
-        },
-      }
+    // Update last login using Mongoose
+    await UserModel.findByIdAndUpdate(
+      user._id,
+      { lastLogin: new Date() }
     )
 
     // Create response with token in httpOnly cookie

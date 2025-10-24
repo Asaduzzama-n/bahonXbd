@@ -1,76 +1,144 @@
+export interface User {
+  _id?: string
+  name: string
+  email: string
+  password: string
+  phone?: string
+  profile?: string
+  role: 'user' | 'admin'
+  isEmailVerified: boolean
+  verificationCode?: string
+  verificationExpiry?: Date
+  resetPasswordToken?: string
+  resetPasswordExpiry?: Date
+  lastLogin?: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface Bike {
-  _id: string
+  _id?: string
   title: string
+  description: string
   brand: string
   model: string
   year: number
-  price: number
+  condition: 'excellent' | 'good' | 'fair' | 'poor'
   mileage: number
-  condition: 'excellent' | 'good' | 'fair'
-  engineCapacity: number
-  fuelType: 'petrol' | 'diesel' | 'electric'
-  transmission: 'manual' | 'automatic'
-  color: string
-  location: string
-  description: string
+  price: number
+  myShare: number
+  partners: {
+    partnerId: Partner | string
+    percentage: number
+  }[]
   images: string[]
   features: string[]
-  isVerified: boolean
+  availableDocs: string[]
+  specifications: {
+    engine?: string
+    transmission?: string
+    fuelType?: string
+    displacement?: string
+    maxPower?: string
+    maxTorque?: string
+    topSpeed?: string
+    fuelTank?: string
+    weight?: string
+    [key: string]: string | undefined
+  }
+  serviceHistory: {
+    date: string
+    description: string
+    cost: number
+  }[]
+  status: 'active' | 'sold' | 'pending' | 'inactive' | 'available'
   isFeatured: boolean
-  status: 'available' | 'sold' | 'pending'
+  views: number
   createdAt: Date
   updatedAt: Date
 }
 
-export interface Order {
-  _id: string
-  bikeId: string
+export interface PurchaseOrder {
+  _id?: string
+  bikeId: Bike
   buyerName: string
-  buyerEmail: string
   buyerPhone: string
-  status: 'pending' | 'completed' | 'cancelled'
-  totalAmount: number
+  buyerEmail: string
+  buyerAddress?: string
+  buyerDocs:{
+    nid: string
+    drivingLicense: string
+    proofOfAddress?: string
+  }
+  amount: number
+  profit: number
+  partnersProfit: {
+    partnerId: Partner
+    profit: number
+  }[]
+  status: 'pending' | 'confirmed'  | 'cancelled'
+  paymentStatus: 'pending' | 'paid'| 'partial' | 'failed' | 'refunded'
+  paymentMethod: 'Bkash' | 'Cash' | 'Bank Transfer'
+  dueAmount?: number
+  dueDate?: Date
+  notes?: string
   createdAt: Date
   updatedAt: Date
 }
+
+export interface BikeWashLocation {
+  _id?: string
+  location: string
+  map: string
+  price: number
+  features: string[]
+  status: 'active' | 'inactive'
+  createdAt: Date
+  updatedAt: Date
+}
+
+
+export interface Expenses {
+  _id?: string
+  bikeId?: string
+  type: 'repair' | 'maintenance' | 'transportation' | 'other'
+  amount: number
+  date: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+
+export interface Partner {
+  _id?: string
+   name: string
+   phone: string
+   email: string
+   address: string
+   documents: {
+    nid: string
+    drivingLicense: string
+    proofOfAddress?: string
+   }
+   profile?: string
+}
+
 
 export interface PlatformStats {
-  totalBikes: number
-  activeBikes: number
-  soldBikes: number
-  totalRevenue: number
-  monthlyRevenue: number
-  totalOrders: number
-  pendingOrders: number
-  completedOrders: number
   totalUsers: number
   activeUsers: number
-  averagePrice: number
-  topSellingBrand: string
-}
-
-export interface User {
-  _id: string
-  name: string
-  email: string
-  phone?: string
-  role: 'user' | 'admin'
-  isVerified: boolean
-  createdAt: Date
-  updatedAt: Date
-}
-
-export interface BikeWashBooking {
-  _id: string
-  customerName: string
-  customerPhone: string
-  bikeModel: string
-  serviceType: string
-  preferredDate: Date
-  preferredTime: string
-  specialInstructions?: string
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
-  totalAmount: number
-  createdAt: Date
-  updatedAt: Date
+  totalBikes: number
+  availableBikes: number
+  soldBikes: number
+  pendingBikes: number
+  inactiveBikes: number
+  totalOrders: number
+  confirmedOrders: number
+  cancelledOrders: number
+  totalProfit: number
+  totalExpenses: number
+  totalPayments: number
+  totalRefunds: number
+  totalRevenue: number
+  pendingOrders: number
 }

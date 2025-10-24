@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { MongoClient, ObjectId } from 'mongodb'
+import { connectToDatabase, BikeModel, PurchaseOrderModel } from '@/lib/database'
 import { AuthUtils } from '@/lib/auth'
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bike-platform'
 
 export async function GET(request: NextRequest) {
   try {
     // Get token from cookie
-    const token = request.cookies.get('token')?.value
+    const token = request.cookies.get('auth-token')?.value
 
     if (!token) {
       return NextResponse.json(
@@ -17,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify token
-    const decoded = AuthUtils.verifyToken(token)
+    const decoded = await AuthUtils.verifyToken(token)
     if (!decoded) {
       return NextResponse.json(
         { error: 'Invalid token' },
@@ -25,38 +23,33 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Connect to MongoDB
-    const client = new MongoClient(MONGODB_URI)
-    await client.connect()
-    const db = client.db()
-    const bikesCollection = db.collection('bikes')
-    const ordersCollection = db.collection('orders')
+    await connectToDatabase()
 
     const userId = decoded.userId
 
-    // Get bike statistics
-    const totalListings = await bikesCollection.countDocuments({ 
+    // Get bike statistics using Mongoose
+    const totalListings = await BikeModel.countDocuments({ 
       sellerId: userId 
     })
 
-    const activeBikes = await bikesCollection.countDocuments({ 
+    const activeBikes = await BikeModel.countDocuments({ 
       sellerId: userId,
       status: 'active',
       isActive: true
     })
 
-    const soldBikes = await bikesCollection.countDocuments({ 
+    const soldBikes = await BikeModel.countDocuments({ 
       sellerId: userId,
       status: 'sold'
     })
 
-    // Get order statistics (as buyer)
-    const totalOrders = await ordersCollection.countDocuments({ 
+    // Get order statistics (as buyer) using Mongoose
+    const totalOrders = await PurchaseOrderModel.countDocuments({ 
       buyerId: userId 
     })
 
-    // Calculate total earnings (as seller)
-    const earningsResult = await ordersCollection.aggregate([
+    // Calculate total earnings (as seller) using Mongoose
+    const earningsResult = await PurchaseOrderModel.aggregate([
       {
         $match: {
           sellerId: userId,
@@ -70,11 +63,9 @@ export async function GET(request: NextRequest) {
           totalEarnings: { $sum: '$amount' }
         }
       }
-    ]).toArray()
+    ])
 
     const totalEarnings = earningsResult.length > 0 ? earningsResult[0].totalEarnings : 0
-
-    await client.close()
 
     const stats = {
       totalListings,

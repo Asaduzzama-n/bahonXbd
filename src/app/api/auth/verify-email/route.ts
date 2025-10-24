@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDatabase } from '@/lib/mongodb'
+import { connectToDatabase, UserModel } from '@/lib/database'
 import { EmailService } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
@@ -13,11 +13,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const db = await getDatabase()
-    const usersCollection = db.collection('users')
+    await connectToDatabase()
 
     // Find user by email
-    const user = await usersCollection.findOne({ email })
+    const user = await UserModel.findOne({ email })
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
@@ -49,13 +48,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update user as verified
-    await usersCollection.updateOne(
+    // Update user as verified using Mongoose
+    await UserModel.findOneAndUpdate(
       { email },
       {
         $set: {
           isEmailVerified: true,
-          updatedAt: new Date(),
         },
         $unset: {
           verificationCode: '',
