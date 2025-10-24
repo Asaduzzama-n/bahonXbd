@@ -21,7 +21,8 @@ import {
   UserCheck,
   TrendingUp,
   Package,
-  Calendar
+  Calendar,
+  Handshake
 } from "lucide-react"
 
 const sidebarItems = [
@@ -48,6 +49,12 @@ const sidebarItems = [
     href: "/admin/users",
     icon: Users,
     description: "User management"
+  },
+  {
+    title: "Partners",
+    href: "/admin/partners",
+    icon: Handshake,
+    description: "Partner management"
   },
   {
     title: "Bike Wash",

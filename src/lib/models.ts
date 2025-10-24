@@ -101,6 +101,7 @@ export interface BikeWashLocation {
 export interface Expenses {
   _id?: string
   bikeId?: string
+  partnerId?: Partner | string
   type: 'repair' | 'maintenance' | 'transportation' | 'other'
   amount: number
   date: Date
@@ -121,6 +122,9 @@ export interface Partner {
     proofOfAddress?: string
    }
    profile?: string
+   isActive: boolean
+   createdAt: Date
+   updatedAt: Date
 }
 
 

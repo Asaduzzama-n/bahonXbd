@@ -151,6 +151,7 @@ const bikeWashLocationSchema = new mongoose.Schema<BikeWashLocation>({
 // Expenses Schema
 const expensesSchema = new mongoose.Schema<Expenses>({
   bikeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bike' },
+  partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner' },
   type: { type: String, enum: ['repair', 'maintenance', 'transportation', 'other'], required: true },
   amount: { type: Number, required: true },
   date: { type: Date, required: true },
@@ -170,6 +171,7 @@ const partnerSchema = new mongoose.Schema<Partner>({
     proofOfAddress: { type: String }
   },
   profile: { type: String },
+  isActive: { type: Boolean, default: true },
 }, {
   timestamps: true
 })

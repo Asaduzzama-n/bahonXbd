@@ -1,5 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
+import { NextRequest } from 'next/server'
+import { sendErrorResponse } from './utils/responseUtils'
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'mySecretKey')
 
@@ -77,6 +79,18 @@ export class AuthUtils {
     }
   }
 }
+
+export const checkPermission = async(req:NextRequest) =>{
+      const authHeader = req.headers.get('auth-token')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return sendErrorResponse({ message: 'Unauthorized access', statusCode: 401 })
+      }
+      const token = authHeader.substring(7)
+      const payload = await AuthUtils.verifyToken(token)
+      if (!payload || payload.role !== 'admin') {
+        return sendErrorResponse({ message: 'Unauthorized access', statusCode: 401 })
+      }
+    }
 
 export function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString()

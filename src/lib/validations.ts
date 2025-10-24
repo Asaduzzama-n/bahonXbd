@@ -136,7 +136,54 @@ export const adminBikeQuerySchema = bikeQuerySchema.extend({
   limit: z.string().optional().transform((val) => val ? parseInt(val) : 50)
 })
 
+// Partner management validation schemas
+export const partnerQuerySchema = z.object({
+  search: z.string().optional(),
+  isActive: z.string().optional().transform((val) => val === 'true' ? true : val === 'false' ? false : undefined),
+  sortBy: z.string().optional().refine((val) => 
+    !val || ['createdAt', 'updatedAt', 'name', 'phone', 'email'].includes(val), 
+    { message: 'Invalid sortBy field' }
+  ).transform((val) => val || 'createdAt'),
+  sortOrder: z.string().optional().refine((val) => 
+    !val || ['asc', 'desc'].includes(val), 
+    { message: 'Invalid sortOrder value' }
+  ).transform((val) => (val as 'asc' | 'desc') || 'desc')
+})
+
+export const partnerToggleActiveSchema = z.object({
+  isActive: z.boolean()
+})
+
+export const partnerCreateSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name cannot exceed 100 characters'),
+  phone: z.string().min(10, 'Phone must be at least 10 characters').max(15, 'Phone cannot exceed 15 characters'),
+  email: z.string().email('Invalid email format'),
+  address: z.object({
+    street: z.string().min(1, 'Street is required'),
+    city: z.string().min(1, 'City is required'),
+    state: z.string().min(1, 'State is required'),
+    zipCode: z.string().min(1, 'Zip code is required'),
+    country: z.string().min(1, 'Country is required')
+  }),
+  documents: z.object({
+    nid: z.string().optional(),
+    drivingLicense: z.string().optional(),
+    proofOfAddress: z.string().optional()
+  }).optional(),
+  profile: z.object({
+    bio: z.string().optional(),
+    experience: z.string().optional(),
+    specialization: z.string().optional()
+  }).optional()
+})
+
+export const partnerUpdateSchema = partnerCreateSchema.partial()
+
 export type BikeInput = z.infer<typeof bikeSchema>
 export type BikeUpdateInput = z.infer<typeof bikeUpdateSchema>
 export type BikeQuery = z.infer<typeof bikeQuerySchema>
 export type AdminBikeQuery = z.infer<typeof adminBikeQuerySchema>
+export type PartnerQuery = z.infer<typeof partnerQuerySchema>
+export type PartnerToggleActive = z.infer<typeof partnerToggleActiveSchema>
+export type PartnerCreate = z.infer<typeof partnerCreateSchema>
+export type PartnerUpdate = z.infer<typeof partnerUpdateSchema>
