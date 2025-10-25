@@ -59,7 +59,7 @@ const recentActivity = [
   { id: 2, type: "bike", message: "Honda CBR 150R listing approved", time: "15 minutes ago", status: "approved" },
   { id: 3, type: "user", message: "New user registration: Ahmed Rahman", time: "1 hour ago", status: "new" },
   { id: 4, type: "wash", message: "Bike wash booking confirmed", time: "2 hours ago", status: "confirmed" },
-  { id: 5, type: "order", message: "Order completed: Suzuki Gixxer SF", time: "3 hours ago", status: "completed" }
+  { id: 5, type: "order", message: "Order confirmed: Suzuki Gixxer SF", time: "3 hours ago", status: "confirmed" }
 ]
 
 export default function AdminDashboard() {
@@ -334,7 +334,7 @@ export default function AdminDashboard() {
                   <div className="flex-shrink-0">
                     <Badge 
                       variant={
-                        activity.status === 'completed' ? 'default' :
+                        activity.status === 'confirmed' ? 'default' :
                         activity.status === 'pending' ? 'secondary' :
                         activity.status === 'approved' ? 'default' : 'outline'
                       }

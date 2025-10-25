@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { User, Bike, PurchaseOrder, BikeWashLocation, Expenses, Partner } from './models'
+import { User, Bike, PurchaseOrder, BikeWashLocation, Expenses, Partner, PublicInfo } from './models'
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bike-platform'
 
@@ -176,6 +176,15 @@ const partnerSchema = new mongoose.Schema<Partner>({
   timestamps: true
 })
 
+
+const publicInfoSchema = new mongoose.Schema<PublicInfo>({
+  phone: { type: [String], required: true },
+  email: { type: String, required: true },
+  availableTimes: { type: [String], required: true },
+  location: { type: String, required: true },
+  map: { type: String, required: true },
+})
+
 // Create indexes
 userSchema.index({ email: 1 })
 bikeSchema.index({ brand: 1, model: 1 })
@@ -192,6 +201,7 @@ export const PurchaseOrderModel = mongoose.models.PurchaseOrder || mongoose.mode
 export const BikeWashLocationModel = mongoose.models.BikeWashLocation || mongoose.model<BikeWashLocation>('BikeWashLocation', bikeWashLocationSchema)
 export const ExpensesModel = mongoose.models.Expenses || mongoose.model<Expenses>('Expenses', expensesSchema)
 export const PartnerModel = mongoose.models.Partner || mongoose.model<Partner>('Partner', partnerSchema)
+export const PublicInfoModel = mongoose.models.PublicInfo || mongoose.model<PublicInfo>('PublicInfo', publicInfoSchema)
 
 // Database utilities
 export class DatabaseUtils {

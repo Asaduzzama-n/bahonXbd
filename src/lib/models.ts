@@ -60,12 +60,12 @@ export interface Bike {
 
 export interface PurchaseOrder {
   _id?: string
-  bikeId: Bike
+  bikeId: Bike | string
   buyerName: string
   buyerPhone: string
-  buyerEmail: string
+  buyerEmail?: string
   buyerAddress?: string
-  buyerDocs:{
+  buyerDocs: {
     nid: string
     drivingLicense: string
     proofOfAddress?: string
@@ -73,11 +73,11 @@ export interface PurchaseOrder {
   amount: number
   profit: number
   partnersProfit: {
-    partnerId: Partner
+    partnerId: Partner | string
     profit: number
   }[]
-  status: 'pending' | 'confirmed'  | 'cancelled'
-  paymentStatus: 'pending' | 'paid'| 'partial' | 'failed' | 'refunded'
+  status: 'pending' | 'confirmed' | 'cancelled'
+  paymentStatus: 'pending' | 'paid' | 'partial' | 'failed' | 'refunded'
   paymentMethod: 'Bkash' | 'Cash' | 'Bank Transfer'
   dueAmount?: number
   dueDate?: Date
@@ -125,6 +125,16 @@ export interface Partner {
    isActive: boolean
    createdAt: Date
    updatedAt: Date
+}
+
+
+export interface PublicInfo {
+  phone: string[]
+  email: string
+  availableTimes: string[]
+  location: string
+  map: string
+
 }
 
 

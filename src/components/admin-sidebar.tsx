@@ -9,7 +9,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
   LayoutDashboard,
   Bike,
-  Users,
   ShoppingCart,
   BarChart3,
   Settings,
@@ -22,7 +21,8 @@ import {
   TrendingUp,
   Package,
   Calendar,
-  Handshake
+  Handshake,
+  User
 } from "lucide-react"
 
 const sidebarItems = [
@@ -39,16 +39,10 @@ const sidebarItems = [
     description: "Manage bike listings"
   },
   {
-    title: "Orders",
-    href: "/admin/orders",
+    title: "Purchase Orders",
+    href: "/admin/purchase-orders",
     icon: ShoppingCart,
-    description: "View and manage orders"
-  },
-  {
-    title: "Users",
-    href: "/admin/users",
-    icon: Users,
-    description: "User management"
+    description: "View and manage purchase orders"
   },
   {
     title: "Partners",
@@ -79,6 +73,12 @@ const sidebarItems = [
     href: "/admin/verification",
     icon: UserCheck,
     description: "Verify listings"
+  },
+  {
+    title: "Public Info",
+    href: "/admin/profile",
+    icon: User,
+    description: "Manage public information"
   },
   {
     title: "Settings",
