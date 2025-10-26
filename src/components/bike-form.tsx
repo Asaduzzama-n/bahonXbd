@@ -117,7 +117,8 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
       const response = await fetch('/api/admin/partners')
       if (response.ok) {
         const data = await response.json()
-        setPartners(data.partners || [])
+        console.log('Fetched partners:', data.data?.partners || [])
+        setPartners(data.data?.partners || [])
       }
     } catch (error) {
       console.error('Failed to fetch partners:', error)
@@ -136,7 +137,14 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
 
   const onFormSubmit = async (data: BikeInput) => {
     try {
-      await onSubmit(data)
+      const payload = {
+        ...data,
+        partners: (data.partners || []).map((p) => ({
+          partnerId: typeof p.partnerId === 'string' ? p.partnerId : (p.partnerId as any)?._id ?? '',
+          percentage: Number(p.percentage) || 0,
+        })),
+      }
+      await onSubmit(payload)
     } catch (error) {
       console.error('Form submission error:', error)
     }

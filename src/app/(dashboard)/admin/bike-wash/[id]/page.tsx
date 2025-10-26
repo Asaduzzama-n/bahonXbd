@@ -41,7 +41,7 @@ export default function BikeWashLocationDetails() {
         setLocation(data.data)
       } else {
         toast.error('Failed to fetch bike wash location details')
-        router.push('/admin/bike-wash-locations')
+        router.push('/admin/bike-wash')
       }
     } catch (error) {
       console.error('Failed to fetch bike wash location:', error)
@@ -79,11 +79,11 @@ export default function BikeWashLocationDetails() {
   }
 
   const handleEdit = () => {
-    router.push(`/admin/bike-wash-locations/${locationId}/edit`)
+    router.push(`/admin/bike-wash/${locationId}/edit`)
   }
 
   const handleBack = () => {
-    router.push('/admin/bike-wash-locations')
+    router.push('/admin/bike-wash')
   }
 
   const openMapLocation = () => {

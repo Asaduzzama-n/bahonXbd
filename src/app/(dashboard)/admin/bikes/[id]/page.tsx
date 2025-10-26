@@ -195,7 +195,7 @@ export default function BikeDetailsPage() {
 
           {/* Detailed Information */}
           <Tabs defaultValue="specifications" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2">
               <TabsTrigger value="specifications">Specifications</TabsTrigger>
               <TabsTrigger value="features">Features</TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
@@ -231,7 +231,7 @@ export default function BikeDetailsPage() {
                   {bike.features && bike.features.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {bike.features.map((feature, index) => (
-                        <Badge key={index} variant="secondary">
+                        <Badge key={index} variant="secondary" className="break-words max-w-full">
                           {feature}
                         </Badge>
                       ))}
@@ -252,7 +252,7 @@ export default function BikeDetailsPage() {
                   {bike.availableDocs && bike.availableDocs.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {bike.availableDocs.map((doc, index) => (
-                        <Badge key={index} variant="outline">
+                        <Badge key={index} variant="outline" className="break-words max-w-full">
                           {doc}
                         </Badge>
                       ))}
@@ -360,19 +360,19 @@ export default function BikeDetailsPage() {
                 <div className="space-y-3">
                   {bike.partners.map((partner, index) => (
                     <div key={index} className="p-3 border rounded-lg">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{typeof partner.partnerId === 'string' ? partner.partnerId : partner.partnerId.name}</p>
-                          <p className="text-sm text-muted-foreground flex items-center">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <div className="max-w-full">
+                          <p className="font-medium break-words">{typeof partner.partnerId === 'string' ? partner.partnerId : partner.partnerId.name}</p>
+                          <p className="text-sm text-muted-foreground flex items-center break-all">
                             <Mail className="mr-1 h-3 w-3" />
                             {typeof partner.partnerId === 'string' ? partner.partnerId : partner.partnerId.email}
                           </p>
-                          <p className="text-sm text-muted-foreground flex items-center">
+                          <p className="text-sm text-muted-foreground flex items-center break-all">
                             <Phone className="mr-1 h-3 w-3" />
                             {typeof partner.partnerId === 'string' ? partner.partnerId : partner.partnerId.phone}
                           </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right sm:text-right">
                           <Badge variant="secondary">{partner.percentage}%</Badge>
                           <p className="text-sm font-medium">৳{((bike.price * partner.percentage) / 100).toLocaleString()}</p>
                         </div>

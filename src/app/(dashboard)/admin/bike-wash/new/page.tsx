@@ -21,7 +21,7 @@ export default function NewBikeWashLocation() {
       if (response.ok) {
         const data = await response.json()
         toast.success('Bike wash location created successfully')
-        router.push('/admin/bike-wash-locations')
+        router.push('/admin/bike-wash')
       } else {
         const errorData = await response.json()
         toast.error(errorData.message || 'Failed to create bike wash location')
@@ -33,7 +33,7 @@ export default function NewBikeWashLocation() {
   }
 
   const handleCancel = () => {
-    router.push('/admin/bike-wash-locations')
+    router.push('/admin/bike-wash')
   }
 
   return (

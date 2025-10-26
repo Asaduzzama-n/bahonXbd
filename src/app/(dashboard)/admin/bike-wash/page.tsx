@@ -82,11 +82,11 @@ export default function BikeWashLocationsManagement() {
   }
 
   const handleView = (location: BikeWashLocation) => {
-    router.push(`/admin/bike-wash-locations/${location._id}`)
+    router.push(`/admin/bike-wash/${location._id}`)
   }
 
   const handleEdit = (location: BikeWashLocation) => {
-    router.push(`/admin/bike-wash-locations/${location._id}/edit`)
+    router.push(`/admin/bike-wash/${location._id}/edit`)
   }
 
   const handleDelete = async (location: BikeWashLocation) => {
@@ -212,7 +212,7 @@ export default function BikeWashLocationsManagement() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button onClick={() => router.push('/admin/bike-wash-locations/new')}>
+          <Button onClick={() => router.push('/admin/bike-wash/new')}>
             <Plus className="mr-2 h-4 w-4" />
             Add Location
           </Button>
