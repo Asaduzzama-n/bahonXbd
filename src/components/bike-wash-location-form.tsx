@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,8 +13,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, AlertCircle, MapPin, Settings, Eye } from "lucide-react"
 import { BikeWashLocation } from "@/lib/models"
 import { BikeWashLocationCreate, bikeWashLocationCreateSchema, BikeWashLocationUpdate } from "@/lib/validations"
-import { z } from "zod"
 import { useRouter } from "next/navigation"
+
 
 interface BikeWashLocationFormProps {
   location?: BikeWashLocation
@@ -27,21 +29,23 @@ interface FormErrors {
 
 export default function BikeWashLocationForm({ location, onSubmit, onCancel, isLoading = false }: BikeWashLocationFormProps) {
   const router = useRouter()
-  const [formData, setFormData] = useState<BikeWashLocationCreate>({
-    location: "",
-    map: "",
-    price: 0,
-    features: [],
-    status: "active"
+  const { register, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm<BikeWashLocationCreate>({
+    resolver: zodResolver(bikeWashLocationCreateSchema as  any),
+    defaultValues: {
+      location: "",
+      map: "",
+      price: 0,
+      features: [],
+      status: "active"
+    }
   })
   const [isActive, setIsActive] = useState(true)
-  const [errors, setErrors] = useState<FormErrors>({})
   const [featuresInput, setFeaturesInput] = useState("")
 
   // Initialize form data when location prop changes
   useEffect(() => {
     if (location) {
-      setFormData({
+      reset({
         location: location.location,
         map: location.map,
         price: location.price,
@@ -51,68 +55,26 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
       setIsActive(location.status === "active")
       setFeaturesInput(location.features.join(", "))
     }
-  }, [location])
+  }, [location, reset])
 
-  const handleInputChange = (field: keyof BikeWashLocationCreate, value: string | number) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-    
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => {
-        const newErrors = { ...prev }
-        delete newErrors[field]
-        return newErrors
-      })
-    }
-  }
+
 
   const handleFeaturesChange = (value: string) => {
     setFeaturesInput(value)
     const featuresArray = value.split(",").map(feature => feature.trim()).filter(feature => feature.length > 0)
-    setFormData(prev => ({
-      ...prev,
-      features: featuresArray
-    }))
+    setValue('features', featuresArray, { shouldValidate: true })
   }
 
-  const validateForm = (): boolean => {
-    try {
-      bikeWashLocationCreateSchema.parse(formData)
-      setErrors({})
-      return true
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const newErrors: FormErrors = {}
-        error.issues.forEach((err) => {
-          const path = err.path.join('.')
-          newErrors[path] = err.message
-        })
-        setErrors(newErrors)
-      }
-      return false
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!validateForm()) {
-      return
-    }
-
+  const onFormSubmit = async (data: BikeWashLocationCreate) => {
     try {
       if (location) {
-        // For updates, include the status from the switch
         const updateData: BikeWashLocationUpdate = {
-          ...formData,
+          ...data,
           status: isActive ? "active" : "inactive"
         }
         await onSubmit(updateData)
       } else {
-        await onSubmit(formData)
+        await onSubmit(data)
       }
     } catch (error) {
       console.error('Error submitting form:', error)
@@ -124,6 +86,8 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
       router.push(`/admin/bike-wash-locations/${location._id}`)
     }
   }
+
+  const currentFeatures = watch('features') || []
 
   return (
     <div className="space-y-6">
@@ -156,12 +120,12 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Please fix the following errors: {Object.values(errors).join(', ')}
+            Please fix the following errors: {Object.values(errors).map((e) => (e as { message?: string })?.message).filter(Boolean).join(', ')}
           </AlertDescription>
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
         {/* Basic Information */}
         <Card>
           <CardHeader>
@@ -179,13 +143,12 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
                 <Label htmlFor="location">Location Name *</Label>
                 <Input
                   id="location"
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  {...register('location')}
                   placeholder="Enter location name (e.g., Dhanmondi Branch)"
                   className={errors.location ? "border-red-500" : ""}
                 />
                 {errors.location && (
-                  <p className="text-sm text-red-500">{errors.location}</p>
+                  <p className="text-sm text-red-500">{errors.location.message as string}</p>
                 )}
               </div>
 
@@ -196,13 +159,12 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
                   type="number"
                   min="0"
                   step="1"
-                  value={formData.price}
-                  onChange={(e) => handleInputChange('price', parseInt(e.target.value) || 0)}
+                  {...register('price', { valueAsNumber: true })}
                   placeholder="Enter price in Taka (৳)"
                   className={errors.price ? "border-red-500" : ""}
                 />
                 {errors.price && (
-                  <p className="text-sm text-red-500">{errors.price}</p>
+                  <p className="text-sm text-red-500">{errors.price.message as string}</p>
                 )}
               </div>
             </div>
@@ -211,14 +173,13 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
               <Label htmlFor="map">Map URL/Address *</Label>
               <Textarea
                 id="map"
-                value={formData.map}
-                onChange={(e) => handleInputChange('map', e.target.value)}
+                {...register('map')}
                 placeholder="Enter Google Maps URL or detailed address"
                 className={errors.map ? "border-red-500" : ""}
                 rows={3}
               />
               {errors.map && (
-                <p  className="text-sm text-red-500">{errors.map}</p>
+                <p className="text-sm text-red-500">{errors.map.message as string}</p>
               )}
             </div>
 
@@ -273,14 +234,14 @@ export default function BikeWashLocationForm({ location, onSubmit, onCancel, isL
                 rows={4}
               />
               {errors.features && (
-                <p className="text-sm text-red-500">{errors.features}</p>
+                <p className="text-sm text-red-500">{errors.features.message as string}</p>
               )}
               <p className="text-sm text-muted-foreground">
-                Separate multiple features with commas. Current features: {formData.features.length}
+                Separate multiple features with commas. Current features: {currentFeatures.length}
               </p>
-              {formData.features.length > 0 && (
+              {currentFeatures.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {formData.features.map((feature, index) => (
+                  {currentFeatures.map((feature, index) => (
                     <span
                       key={index}
                       className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"

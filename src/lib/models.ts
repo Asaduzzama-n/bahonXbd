@@ -95,8 +95,8 @@ export interface BikeWashLocation {
   price: number
   features: string[]
   status: 'active' | 'inactive'
-  createdAt: Date
-  updatedAt: Date
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 

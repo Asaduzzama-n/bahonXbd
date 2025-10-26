@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,9 +13,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, AlertCircle, User, FileText, BarChart3, Eye } from "lucide-react"
 import { Partner } from "@/lib/models"
 import { PartnerCreate, partnerCreateSchema, PartnerUpdate } from "@/lib/validations"
-import { z } from "zod"
-
-// Validation schema
 
 import { useRouter } from "next/navigation"
 
@@ -30,25 +29,27 @@ interface FormErrors {
 
 export default function PartnerForm({ partner, onSubmit, onCancel, isLoading = false }: PartnerFormProps) {
   const router = useRouter()
-  const [formData, setFormData] = useState<Partial<PartnerCreate>>({
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-    documents: {
-      nid: "",
-      drivingLicense: "",
-      proofOfAddress: ""
-    },
-    profile: ""
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<PartnerCreate>({
+    resolver: zodResolver(partnerCreateSchema),
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      address: "",
+      documents: {
+        nid: "",
+        drivingLicense: "",
+        proofOfAddress: ""
+      },
+      profile: ""
+    }
   })
 
   const [isActive, setIsActive] = useState(true)
-  const [errors, setErrors] = useState<FormErrors>({})
 
   useEffect(() => {
     if (partner) {
-      setFormData({
+      reset({
         name: partner.name || "",
         phone: partner.phone || "",
         email: partner.email || "",
@@ -62,74 +63,15 @@ export default function PartnerForm({ partner, onSubmit, onCancel, isLoading = f
       })
       setIsActive(partner.isActive)
     }
-  }, [partner])
+  }, [partner, reset])
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-    
-    // Clear error for this field
-    if (errors[field]) {
-      setErrors(prev => {
-        const newErrors = { ...prev }
-        delete newErrors[field]
-        return newErrors
-      })
-    }
-  }
 
-  const handleDocumentChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      documents: {
-        ...prev.documents!,
-        [field]: value
-      }
-    }))
-    
-    // Clear error for this field
-    const errorKey = `documents.${field}`
-    if (errors[errorKey]) {
-      setErrors(prev => {
-        const newErrors = { ...prev }
-        delete newErrors[errorKey]
-        return newErrors
-      })
-    }
-  }
 
-  const validateForm = () => {
-    try {
-      partnerCreateSchema.parse(formData)
-      setErrors({})
-      return true
-    } catch (error: any) {
-      const newErrors: FormErrors = {}
-      if (error.errors) {
-        error.errors.forEach((err: any) => {
-          const path = err.path.join('.')
-          newErrors[path] = err.message
-        })
-      }
-      setErrors(newErrors)
-      return false
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!validateForm()) {
-      return
-    }
-
+  const onFormSubmit = async (data: PartnerCreate) => {
     try {
       const submitData = partner 
-        ? { ...formData, isActive } as PartnerUpdate
-        : formData as PartnerCreate
-      
+        ? { ...data, isActive } as PartnerUpdate
+        : data as PartnerCreate
       await onSubmit(submitData)
     } catch (error) {
       console.error('Form submission error:', error)
@@ -185,12 +127,12 @@ export default function PartnerForm({ partner, onSubmit, onCancel, isLoading = f
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Please fix the following errors: {Object.values(errors).join(', ')}
+            Please fix the following errors: {Object.values(errors).map((e) => (e as { message?: string })?.message).filter(Boolean).join(', ')}
           </AlertDescription>
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
         {/* Basic Information */}
         <Card>
           <CardHeader>
@@ -205,60 +147,56 @@ export default function PartnerForm({ partner, onSubmit, onCancel, isLoading = f
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name *</Label>
+                <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
                 <Input
                   id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  {...register('name')}
                   placeholder="Enter partner's full name"
                   className={errors.name ? "border-red-500" : ""}
                 />
                 {errors.name && (
-                  <p className="text-sm text-red-500">{errors.name}</p>
+                  <p className="text-sm text-red-500">{errors.name.message as string}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
+                <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
                 <Input
                   id="phone"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  {...register('phone')}
                   placeholder="Enter phone number"
                   className={errors.phone ? "border-red-500" : ""}
                 />
                 {errors.phone && (
-                  <p className="text-sm text-red-500">{errors.phone}</p>
+                  <p className="text-sm text-red-500">{errors.phone.message as string}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
+                <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
                 <Input
                   id="email"
                   type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  {...register('email')}
                   placeholder="Enter email address"
                   className={errors.email ? "border-red-500" : ""}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email}</p>
+                  <p className="text-sm text-red-500">{errors.email.message as string}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address">Address *</Label>
+                <Label htmlFor="address">Address <span className="text-red-500">*</span></Label>
                 <Textarea
                   id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  {...register('address')}
                   placeholder="Enter complete address"
                   className={errors.address ? "border-red-500" : ""}
                   rows={3}
                 />
                 {errors.address && (
-                  <p className="text-sm text-red-500">{errors.address}</p>
+                  <p className="text-sm text-red-500">{errors.address.message as string}</p>
                 )}
               </div>
             </div>
@@ -267,8 +205,7 @@ export default function PartnerForm({ partner, onSubmit, onCancel, isLoading = f
               <Label htmlFor="profile">Profile/Bio</Label>
               <Textarea
                 id="profile"
-                value={formData.profile}
-                onChange={(e) => handleInputChange('profile', e.target.value)}
+                {...register('profile')}
                 placeholder="Enter partner's profile or biography (optional)"
                 rows={4}
               />
@@ -316,30 +253,28 @@ export default function PartnerForm({ partner, onSubmit, onCancel, isLoading = f
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="nid">National ID (NID) *</Label>
+                <Label htmlFor="nid">National ID (NID) <span className="text-red-500">*</span></Label>
                 <Input
                   id="nid"
-                  value={formData.documents?.nid}
-                  onChange={(e) => handleDocumentChange('nid', e.target.value)}
+                  {...register('documents.nid')}
                   placeholder="Enter NID number"
-                  className={errors['documents.nid'] ? "border-red-500" : ""}
+                  className={errors.documents?.nid ? "border-red-500" : ""}
                 />
-                {errors['documents.nid'] && (
-                  <p className="text-sm text-red-500">{errors['documents.nid']}</p>
+                {errors.documents?.nid && (
+                  <p className="text-sm text-red-500">{errors.documents.nid.message as string}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="drivingLicense">Driving License *</Label>
+                <Label htmlFor="drivingLicense">Driving License <span className="text-red-500">*</span></Label>
                 <Input
                   id="drivingLicense"
-                  value={formData.documents?.drivingLicense}
-                  onChange={(e) => handleDocumentChange('drivingLicense', e.target.value)}
+                  {...register('documents.drivingLicense')}
                   placeholder="Enter driving license number"
-                  className={errors['documents.drivingLicense'] ? "border-red-500" : ""}
+                  className={errors.documents?.drivingLicense ? "border-red-500" : ""}
                 />
-                {errors['documents.drivingLicense'] && (
-                  <p className="text-sm text-red-500">{errors['documents.drivingLicense']}</p>
+                {errors.documents?.drivingLicense && (
+                  <p className="text-sm text-red-500">{errors.documents.drivingLicense.message as string}</p>
                 )}
               </div>
 
@@ -347,13 +282,12 @@ export default function PartnerForm({ partner, onSubmit, onCancel, isLoading = f
                 <Label htmlFor="proofOfAddress">Proof of Address</Label>
                 <Input
                   id="proofOfAddress"
-                  value={formData.documents?.proofOfAddress}
-                  onChange={(e) => handleDocumentChange('proofOfAddress', e.target.value)}
+                  {...register('documents.proofOfAddress')}
                   placeholder="Enter proof of address (optional)"
-                  className={errors['documents.proofOfAddress'] ? "border-red-500" : ""}
+                  className={errors.documents?.proofOfAddress ? "border-red-500" : ""}
                 />
-                {errors['documents.proofOfAddress'] && (
-                  <p className="text-sm text-red-500">{errors['documents.proofOfAddress']}</p>
+                {errors.documents?.proofOfAddress && (
+                  <p className="text-sm text-red-500">{errors.documents.proofOfAddress.message as string}</p>
                 )}
               </div>
             </div>
