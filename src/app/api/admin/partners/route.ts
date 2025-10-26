@@ -3,7 +3,7 @@ import { connectToDatabase } from '@/lib/database'
 import { PartnerModel } from '@/lib/database'
 import { AuthUtils, checkPermission } from '@/lib/auth'
 import { partnerQuerySchema, partnerCreateSchema, type PartnerQuery, type PartnerCreate } from '@/lib/validations'
-import { sendSuccessResponse, sendErrorResponse } from '@/lib/utils/responseUtils'
+import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils/responseUtils'
 
 // GET /api/admin/partners - Get all partners with search and pagination
 export async function GET(request: NextRequest) {

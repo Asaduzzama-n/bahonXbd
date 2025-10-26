@@ -3,7 +3,7 @@ import { connectToDatabase } from '@/lib/database'
 import { BikeWashLocationModel } from '@/lib/database'
 import { AuthUtils, checkPermission } from '@/lib/auth'
 import { bikeWashLocationToggleStatusSchema, bikeWashLocationUpdateSchema, type BikeWashLocationToggleStatus, type BikeWashLocationUpdate } from '@/lib/validations'
-import { sendSuccessResponse, sendErrorResponse } from '@/lib/utils/responseUtils'
+import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils/responseUtils'
 import { isValidObjectId } from 'mongoose'
 
 // GET /api/admin/bike-wash-locations/[id] - Get single bike wash location details

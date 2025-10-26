@@ -14,12 +14,19 @@ interface GlobalMongoose {
 
 declare global {
   var __mongoose: GlobalMongoose | undefined
+  // Added flag to ensure seeding runs only once per process
+  var __seeded: boolean | undefined
 }
 
 let cached = global.__mongoose
 
 if (!cached) {
   cached = global.__mongoose = { conn: null, promise: null }
+}
+
+// Initialize seeding flag
+if (global.__seeded === undefined) {
+  global.__seeded = false
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose> {
@@ -45,13 +52,19 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
     throw e
   }
 
+  // One-time admin seeding after successful connection
+  if (!global.__seeded) {
+    await seedAdminIfNeeded()
+    global.__seeded = true
+  }
+
   return cached!.conn
 }
 
 // User Schema
 const userSchema = new mongoose.Schema<User>({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true },
   password: { type: String, required: true },
   phone: { type: String },
   profile: { type: String },
@@ -203,6 +216,29 @@ export const ExpensesModel = mongoose.models.Expenses || mongoose.model<Expenses
 export const PartnerModel = mongoose.models.Partner || mongoose.model<Partner>('Partner', partnerSchema)
 export const PublicInfoModel = mongoose.models.PublicInfo || mongoose.model<PublicInfo>('PublicInfo', publicInfoSchema)
 
+// One-time admin seed helper (does not call connectToDatabase to avoid recursion)
+async function seedAdminIfNeeded() {
+  try {
+    const adminExists = await UserModel.findOne({ email: 'admin@bikeplatform.com' })
+    if (!adminExists) {
+      const bcrypt = require('bcryptjs')
+      const hashedPassword = await bcrypt.hash('admin123', 12)
+
+      await UserModel.create({
+        name: 'Admin User',
+        email: 'admin@bikeplatform.com',
+        password: hashedPassword,
+        role: 'admin',
+        isEmailVerified: true,
+      })
+
+      console.log('Admin user created successfully')
+    }
+  } catch (error) {
+    console.error('Admin seeding failed:', error)
+  }
+}
+
 // Database utilities
 export class DatabaseUtils {
   static async createIndexes() {
@@ -213,7 +249,7 @@ export class DatabaseUtils {
 
   static async seedData() {
     await connectToDatabase()
-    
+    console.log('Seeding database...')
     // Check if admin user exists
     const adminExists = await UserModel.findOne({ email: 'admin@bikeplatform.com' })
     

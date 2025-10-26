@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/database'
 import { PartnerModel, BikeModel } from '@/lib/database'
 import { AuthUtils, checkPermission } from '@/lib/auth'
-import { sendSuccessResponse, sendErrorResponse } from '@/lib/utils/responseUtils'
+import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils/responseUtils'
 import { isValidObjectId } from 'mongoose'
 import { Partner } from '@/lib/models'
 

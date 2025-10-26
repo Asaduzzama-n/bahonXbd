@@ -2,7 +2,8 @@ import { NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/database';
 import { PurchaseOrderModel } from '@/lib/database';
 import { checkPermission } from '@/lib/auth';
-import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils';
+import { sendErrorResponse, sendSuccessResponse } from '@/lib/api-utils/responseUtils';
+
 
 // GET - Fetch purchase order statistics
 export async function GET(request: NextRequest) {
@@ -153,9 +154,8 @@ export async function GET(request: NextRequest) {
         ...monthStats
       });
     }
-
-    return sendSuccessResponse({
-      overview: {
+    const returnable = {
+            overview: {
         totalPurchaseOrders,
         recentPurchaseOrders: recentPurchaseOrdersCount,
         statusDistribution: statusCounts,
@@ -184,10 +184,18 @@ export async function GET(request: NextRequest) {
       },
       topPartners,
       monthlyTrends
+    }
+    return sendSuccessResponse({
+      statusCode: 200,
+      message: 'Purchase order statistics fetched successfully',
+      data: {...returnable}
     });
 
   } catch (error) {
     console.error('Error fetching purchase order statistics:', error);
-    return sendErrorResponse('Failed to fetch purchase order statistics', 500);
+    return sendErrorResponse({
+      statusCode: 500,
+      message: 'Failed to fetch purchase order statistics'
+    });
   }
 }

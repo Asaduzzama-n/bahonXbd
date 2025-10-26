@@ -6,7 +6,7 @@ import handleValidationError from '../errors/handleValidationError'
 import handleZodError from '../errors/handleZodError'
 import handleCastError from '../errors/handleCastError'
 import ApiError from '../errors/ApiError'
-import { sendErrorResponse } from '../utils/responseUtils'
+import { sendErrorResponse } from '../api-utils/responseUtils'
 
 export const globalErrorHandler = (error: any) => {
   console.log('🪐 Global Error Handler:', error)

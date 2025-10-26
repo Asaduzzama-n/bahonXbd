@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectToDatabase, PublicInfoModel } from '@/lib/database'
 import { checkPermission } from '@/lib/auth'
-import { sendSuccessResponse, sendErrorResponse } from '@/lib/utils/responseUtils'
+import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils/responseUtils'
 
 // GET - Fetch admin profile
 export async function GET(request: NextRequest) {

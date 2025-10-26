@@ -3,7 +3,7 @@ import { connectToDatabase } from '@/lib/database'
 import { BikeWashLocationModel } from '@/lib/database'
 import { AuthUtils, checkPermission } from '@/lib/auth'
 import { bikeWashLocationQuerySchema, bikeWashLocationCreateSchema, type BikeWashLocationQuery, type BikeWashLocationCreate } from '@/lib/validations'
-import { sendSuccessResponse, sendErrorResponse } from '@/lib/utils/responseUtils'
+import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils/responseUtils'
 
 // GET /api/admin/bike-wash-locations - Get all bike wash locations with search and filtering
 export async function GET(request: NextRequest) {

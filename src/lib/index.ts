@@ -12,14 +12,14 @@ export {
   sendSuccessResponse, 
   sendErrorResponse, 
   sendPaginatedResponse 
-} from './utils/responseUtils'
+} from './api-utils/responseUtils'
 export { 
   validateData, 
   validateQueryParams, 
   validateRequestBody,
   mongoIdSchema,
   paginationQuerySchema
-} from './utils/validationUtils'
+} from './api-utils/validationUtils'
 
 // Helpers
 export { paginationHelper } from './helpers/paginationHelper'

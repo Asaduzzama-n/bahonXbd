@@ -209,7 +209,8 @@ export const buyerDocsSchema = z.object({
 
 export const partnerProfitSchema = z.object({
   partnerId: z.string().min(1, 'Partner ID is required'),
-  profit: z.number().min(0, 'Profit must be at least 0')
+  profit: z.number().min(0, 'Profit must be at least 0'),
+  sharePercentage: z.number().min(0, 'Share percentage must be at least 0').max(100, 'Share percentage cannot exceed 100')
 })
 
 export const purchaseOrderCreateSchema = z.object({
@@ -223,10 +224,11 @@ export const purchaseOrderCreateSchema = z.object({
   profit: z.number().min(0, 'Profit must be at least 0'),
   partnersProfit: z.array(partnerProfitSchema).optional().default([]),
   status: z.enum(['pending', 'confirmed', 'cancelled']).optional().default('pending'),
-  paymentStatus: z.enum(['pending', 'paid', 'partial', 'failed', 'refunded']).optional().default('pending'),
+  paymentStatus: z.enum(['pending', 'paid', 'partial', 'failed']).optional().default('pending'),
   paymentMethod: z.enum(['Bkash', 'Cash', 'Bank Transfer']),
   dueAmount: z.number().min(0, 'Due amount must be at least 0').optional(),
   dueDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
+  duePaymentReceivingDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
   notes: z.string().max(1000, 'Notes cannot exceed 1000 characters').optional()
 })
 
@@ -243,7 +245,7 @@ export const purchaseOrderQuerySchema = z.object({
     { message: 'Invalid status value' }
   ),
   paymentStatus: z.string().optional().refine((val) => 
-    !val || ['pending', 'paid', 'partial', 'failed', 'refunded'].includes(val), 
+    !val || ['pending', 'paid', 'partial', 'failed'].includes(val), 
     { message: 'Invalid payment status value' }
   ),
   paymentMethod: z.string().optional().refine((val) => 
@@ -265,8 +267,9 @@ export const purchaseOrderStatusUpdateSchema = z.object({
 })
 
 export const purchaseOrderPaymentUpdateSchema = z.object({
-  paymentStatus: z.enum(['pending', 'paid', 'partial', 'failed', 'refunded']),
-  dueAmount: z.number().min(0, 'Due amount must be at least 0').optional()
+  paymentStatus: z.enum(['pending', 'paid', 'partial', 'failed']),
+  dueAmount: z.number().min(0, 'Due amount must be at least 0').optional(),
+  duePaymentReceivingDate: z.string().optional().transform((val) => val ? new Date(val) : undefined)
 })
 
 export type BikeInput = z.infer<typeof bikeSchema>

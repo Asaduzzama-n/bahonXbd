@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/database';
 import { PurchaseOrderModel, BikeModel, PartnerModel } from '@/lib/database';
 import { checkPermission } from '@/lib/auth';
-import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils';
+import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils/responseUtils';
 import { purchaseOrderCreateSchema, purchaseOrderQuerySchema } from '@/lib/validations';
 
 // GET - Fetch all purchase orders with filtering and pagination
@@ -14,72 +14,103 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
 
     const { searchParams } = new URL(request.url);
-    const queryData = {
+
+    // Parse known query params via Zod
+    const validatedQuery = purchaseOrderQuerySchema.parse({
       page: searchParams.get('page') || '1',
-      limit: searchParams.get('limit') || '10',
+      limit: searchParams.get('limit') || '50',
+      search: searchParams.get('search') || undefined,
       status: searchParams.get('status') || undefined,
-      partnerId: searchParams.get('partnerId') || undefined,
-      bikeId: searchParams.get('bikeId') || undefined,
+      paymentStatus: searchParams.get('paymentStatus') || undefined,
+      paymentMethod: searchParams.get('paymentMethod') || undefined,
       sortBy: searchParams.get('sortBy') || 'createdAt',
       sortOrder: searchParams.get('sortOrder') || 'desc',
-    };
+    });
 
-    const validatedQuery = purchaseOrderQuerySchema.parse(queryData);
-    
-    const page = parseInt(validatedQuery.page);
-    const limit = parseInt(validatedQuery.limit);
+    // Extra filters not covered by schema
+    const bikeId = searchParams.get('bikeId') || undefined;
+    const partnerId = searchParams.get('partnerId') || undefined;
+
+    const page = validatedQuery.page as number;
+    const limit = validatedQuery.limit as number;
     const skip = (page - 1) * limit;
 
-    // Build filter object
+    // Build filter
     const filter: any = {};
+
     if (validatedQuery.status) filter.status = validatedQuery.status;
     if (validatedQuery.paymentStatus) filter.paymentStatus = validatedQuery.paymentStatus;
-    if (validatedQuery.bikeId) filter.bikeId = validatedQuery.bikeId;
+    if (validatedQuery.paymentMethod) filter.paymentMethod = validatedQuery.paymentMethod;
+    if (bikeId) filter.bikeId = bikeId;
+    if (partnerId) filter['partnersProfit.partnerId'] = partnerId;
 
-    // Build sort object
-    const sort: any = {};
-    sort[validatedQuery.sortBy] = validatedQuery.sortOrder === 'asc' ? 1 : -1;
+    if (validatedQuery.search) {
+      const s = validatedQuery.search;
+      filter.$or = [
+        { buyerName: { $regex: s, $options: 'i' } },
+        { buyerPhone: { $regex: s, $options: 'i' } },
+        { buyerEmail: { $regex: s, $options: 'i' } },
+        { buyerAddress: { $regex: s, $options: 'i' } },
+        { notes: { $regex: s, $options: 'i' } },
+      ];
+    }
+
+    // Sort
+    const sort: Record<string, 1 | -1> = {
+      [validatedQuery.sortBy]: validatedQuery.sortOrder === 'asc' ? 1 : -1,
+    };
 
     const [purchaseOrders, total] = await Promise.all([
       PurchaseOrderModel.find(filter)
-        .populate('bikeId', 'make model year price')
+        .populate('bikeId', 'brand model year price')
         .populate('partnersProfit.partnerId', 'name email phone')
         .sort(sort)
         .skip(skip)
         .limit(limit)
         .lean(),
-      PurchaseOrderModel.countDocuments(filter)
+      PurchaseOrderModel.countDocuments(filter),
     ]);
 
-    // Calculate total partner profit for each purchase order
     const purchaseOrdersWithCalculations = purchaseOrders.map(order => {
-      const totalPartnerProfit = order.partnersProfit?.reduce((sum: number, partner: any) => sum + (partner.profit || 0), 0) || 0;
-      const netProfit = order.profit - totalPartnerProfit;
+      const totalPartnerProfit = Array.isArray(order.partnersProfit)
+        ? order.partnersProfit.reduce((sum: number, p: any) => sum + (p.profit || 0), 0)
+        : 0;
+      const netProfit = (order.profit || 0) - totalPartnerProfit;
 
       return {
         ...order,
         totalPartnerProfit,
-        netProfit
+        netProfit,
       };
     });
 
     const totalPages = Math.ceil(total / limit);
 
     return sendSuccessResponse({
-      purchaseOrders: purchaseOrdersWithCalculations,
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalItems: total,
-        itemsPerPage: limit,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1
-      }
+      statusCode: 200,
+      message: 'Purchase orders fetched successfully',
+      data: {
+        purchaseOrders: purchaseOrdersWithCalculations,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: total,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+      },
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching purchase orders:', error);
-    return sendErrorResponse('Failed to fetch purchase orders', 500);
+    return sendErrorResponse({
+      statusCode: error?.name === 'ZodError' ? 400 : 500,
+      message:
+        error?.name === 'ZodError'
+          ? `Validation error: ${error.errors?.map((e: any) => e.message).join(', ')}`
+          : 'Failed to fetch purchase orders',
+    });
   }
 }
 
@@ -97,7 +128,10 @@ export async function POST(request: NextRequest) {
     // Verify bike exists and get its details
     const bike = await BikeModel.findById(validatedData.bikeId);
     if (!bike) {
-      return sendErrorResponse('Bike not found', 404);
+      return sendErrorResponse({
+        statusCode: 404,
+        message: 'Bike not found',
+      });
     }
 
     // Verify partners exist if partnersProfit is provided
@@ -126,15 +160,22 @@ export async function POST(request: NextRequest) {
       .lean();
 
     return sendSuccessResponse({
+      statusCode: 201,
       message: 'Purchase order created successfully',
-      purchaseOrder: populatedPurchaseOrder
-    }, 201);
+      data: {...populatedPurchaseOrder}
+    });
 
   } catch (error) {
     console.error('Error creating purchase order:', error);
-    if (error.name === 'ZodError') {
-      return sendErrorResponse('Validation failed: ' + error.errors.map((e: any) => e.message).join(', '), 400);
+    if ((error.name) === 'ZodError') {
+      return sendErrorResponse({
+        statusCode: 400,
+        message: 'Validation failed: ' + error.errors.map((e: any) => e.message).join(', '),
+      });
     }
-    return sendErrorResponse('Failed to create purchase order', 500);
+    return sendErrorResponse({
+      statusCode: 500,
+      message: 'Failed to create purchase order',
+    });
   }
 }

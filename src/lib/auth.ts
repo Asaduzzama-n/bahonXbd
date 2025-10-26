@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
 import { NextRequest } from 'next/server'
-import { sendErrorResponse } from './utils/responseUtils'
+import { sendErrorResponse } from './api-utils/responseUtils'
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'mySecretKey')
 

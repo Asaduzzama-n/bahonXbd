@@ -75,12 +75,14 @@ export interface PurchaseOrder {
   partnersProfit: {
     partnerId: Partner | string
     profit: number
+    sharePercentage: number
   }[]
   status: 'pending' | 'confirmed' | 'cancelled'
-  paymentStatus: 'pending' | 'paid' | 'partial' | 'failed' | 'refunded'
+  paymentStatus: 'pending' | 'paid' | 'partial' | 'failed'
   paymentMethod: 'Bkash' | 'Cash' | 'Bank Transfer'
   dueAmount?: number
   dueDate?: Date
+  duePaymentReceivingDate?: Date
   notes?: string
   createdAt: Date
   updatedAt: Date
