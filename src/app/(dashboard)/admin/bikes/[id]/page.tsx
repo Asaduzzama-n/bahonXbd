@@ -194,33 +194,13 @@ export default function BikeDetailsPage() {
           </Card>
 
           {/* Detailed Information */}
-          <Tabs defaultValue="specifications" className="space-y-4">
+          <Tabs defaultValue="features" className="space-y-4">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2">
-              <TabsTrigger value="specifications">Specifications</TabsTrigger>
               <TabsTrigger value="features">Features</TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
+              <TabsTrigger value="seller">Seller Info</TabsTrigger>
               <TabsTrigger value="service">Service History</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="specifications">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Technical Specifications</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {bike.specifications && Object.entries(bike.specifications).map(([key, value]) => (
-                      value && (
-                        <div key={key} className="flex justify-between py-2 border-b">
-                          <span className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                          <span className="text-muted-foreground">{value}</span>
-                        </div>
-                      )
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             <TabsContent value="features">
               <Card>
@@ -244,21 +224,155 @@ export default function BikeDetailsPage() {
             </TabsContent>
 
             <TabsContent value="documents">
+              <div className="space-y-6">
+                {/* Seller Documents */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Seller Documents</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {bike.sellerAvailableDocs?.nid && (
+                        <div className="p-3 border rounded-lg">
+                          <p className="font-medium text-sm mb-2">NID</p>
+                          <a 
+                            href={bike.sellerAvailableDocs.nid} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm break-all"
+                          >
+                            View Document
+                          </a>
+                        </div>
+                      )}
+                      {bike.sellerAvailableDocs?.drivingLicense && (
+                        <div className="p-3 border rounded-lg">
+                          <p className="font-medium text-sm mb-2">Driving License</p>
+                          <a 
+                            href={bike.sellerAvailableDocs.drivingLicense} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm break-all"
+                          >
+                            View Document
+                          </a>
+                        </div>
+                      )}
+                      {bike.sellerAvailableDocs?.proofOfAddress && (
+                        <div className="p-3 border rounded-lg">
+                          <p className="font-medium text-sm mb-2">Proof of Address</p>
+                          <a 
+                            href={bike.sellerAvailableDocs.proofOfAddress} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm break-all"
+                          >
+                            View Document
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                    {!bike.sellerAvailableDocs?.nid && !bike.sellerAvailableDocs?.drivingLicense && !bike.sellerAvailableDocs?.proofOfAddress && (
+                      <p className="text-muted-foreground">No seller documents available</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Bike Documents */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Bike Documents</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {bike.bikeAvailableDocs?.taxToken && (
+                        <div className="p-3 border rounded-lg">
+                          <p className="font-medium text-sm mb-2">Tax Token</p>
+                          <a 
+                            href={bike.bikeAvailableDocs.taxToken} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm break-all"
+                          >
+                            View Document
+                          </a>
+                        </div>
+                      )}
+                      {bike.bikeAvailableDocs?.registration && (
+                        <div className="p-3 border rounded-lg">
+                          <p className="font-medium text-sm mb-2">Registration</p>
+                          <a 
+                            href={bike.bikeAvailableDocs.registration} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm break-all"
+                          >
+                            View Document
+                          </a>
+                        </div>
+                      )}
+                      {bike.bikeAvailableDocs?.insurance && (
+                        <div className="p-3 border rounded-lg">
+                          <p className="font-medium text-sm mb-2">Insurance</p>
+                          <a 
+                            href={bike.bikeAvailableDocs.insurance} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm break-all"
+                          >
+                            View Document
+                          </a>
+                        </div>
+                      )}
+                      {bike.bikeAvailableDocs?.fitnessReport && (
+                        <div className="p-3 border rounded-lg">
+                          <p className="font-medium text-sm mb-2">Fitness Report</p>
+                          <a 
+                            href={bike.bikeAvailableDocs.fitnessReport} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm break-all"
+                          >
+                            View Document
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                    {!bike.bikeAvailableDocs?.taxToken && !bike.bikeAvailableDocs?.registration && !bike.bikeAvailableDocs?.insurance && !bike.bikeAvailableDocs?.fitnessReport && (
+                      <p className="text-muted-foreground">No bike documents available</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="seller">
               <Card>
                 <CardHeader>
-                  <CardTitle>Available Documents</CardTitle>
+                  <CardTitle>Seller Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {bike.availableDocs && bike.availableDocs.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {bike.availableDocs.map((doc, index) => (
-                        <Badge key={index} variant="outline" className="break-words max-w-full">
-                          {doc}
-                        </Badge>
-                      ))}
+                  {bike.sellerInfo ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Name:</span>
+                        <span className="text-muted-foreground">{bike.sellerInfo.name}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Phone:</span>
+                        <span className="text-muted-foreground">{bike.sellerInfo.phone}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Email:</span>
+                        <span className="text-muted-foreground">{bike.sellerInfo.email}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Address:</span>
+                        <span className="text-muted-foreground">{bike.sellerInfo.address}</span>
+                      </div>
                     </div>
                   ) : (
-                    <p className="text-muted-foreground">No documents listed</p>
+                    <p className="text-muted-foreground">No seller information available</p>
                   )}
                 </CardContent>
               </Card>
@@ -332,6 +446,18 @@ export default function BikeDetailsPage() {
                 <span className="text-sm text-muted-foreground">Mileage:</span>
                 <span className="font-medium">{bike.mileage.toLocaleString()} km</span>
               </div>
+              {bike.purchasePrice && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Purchase Price:</span>
+                  <span className="font-medium">৳{bike.purchasePrice.toLocaleString()}</span>
+                </div>
+              )}
+              {bike.purchaseDate && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Purchase Date:</span>
+                  <span className="font-medium">{format(new Date(bike.purchaseDate), "MMM dd, yyyy")}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Views:</span>
                 <span className="font-medium flex items-center">

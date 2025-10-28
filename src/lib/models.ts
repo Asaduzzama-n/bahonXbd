@@ -26,6 +26,8 @@ export interface Bike {
   condition: 'excellent' | 'good' | 'fair' | 'poor'
   mileage: number
   price: number
+  purchasePrice: number
+  purchaseDate: Date
   myShare: number
   partners: {
     partnerId: Partner | string
@@ -33,24 +35,24 @@ export interface Bike {
   }[]
   images: string[]
   features: string[]
-  availableDocs: string[]
-  specifications: {
-    engine?: string
-    transmission?: string
-    fuelType?: string
-    displacement?: string
-    maxPower?: string
-    maxTorque?: string
-    topSpeed?: string
-    fuelTank?: string
-    weight?: string
-    [key: string]: string | undefined
+  sellerInfo: {
+    name: string
+    phone: string
+    email?: string
+    address?: string
   }
-  serviceHistory: {
-    date: string
-    description: string
-    cost: number
-  }[]
+  sellerAvailableDocs: {
+    nid: string
+    drivingLicense: string
+    proofOfAddress?: string
+  }
+  bikeAvailableDocs: {
+    taxToken: string
+    registration: string
+    insurance?: string
+    fitnessReport?: string
+  }
+  serviceHistory: (Expense | string)[]
   status: 'active' | 'sold' | 'pending' | 'inactive' | 'available'
   isFeatured: boolean
   views: number
@@ -100,13 +102,19 @@ export interface BikeWashLocation {
 }
 
 
-export interface Expenses {
+export interface Expense {
   _id?: string
-  bikeId?: string
-  partnerId?: Partner | string
-  type: 'repair' | 'maintenance' | 'transportation' | 'other'
+  bikeId: Bike | string
+  title: string
+  description: string
+  type: 'repair' | 'maintenance' | 'transportation' | 'fuel' | 'insurance' | 'registration' | 'other'
   amount: number
   date: Date
+  adjustBikePrice: boolean
+  adjustPartnerShares: boolean
+  partnerId?: Partner | string // Only if adjustPartnerShares is true and partner is selected
+  receiptImage?: string
+  notes?: string
   createdAt: Date
   updatedAt: Date
 }

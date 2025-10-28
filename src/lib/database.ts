@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
-import { User, Bike, PurchaseOrder, BikeWashLocation, Expenses, Partner, PublicInfo } from './models'
+import { User, Bike, PurchaseOrder, BikeWashLocation, Expense, Partner, PublicInfo } from './models'
+import { string } from 'zod'
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bike-platform'
 
@@ -85,34 +86,37 @@ const bikeSchema = new mongoose.Schema<Bike>({
   description: { type: String, required: true },
   brand: { type: String, required: true },
   model: { type: String, required: true },
-  year: { type: Number },
+  year: { type: Number, required: true },
   condition: { type: String, enum: ['excellent', 'good', 'fair', 'poor'], required: true },
   mileage: { type: Number, required: true },
   price: { type: Number, required: true },
+  purchasePrice: { type: Number, required: true },
+  purchaseDate: { type: Date, required: true },
   myShare: { type: Number, required: true },
   partners: [{
-    partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner',required: true },
-    percentage: { type: Number,required: true }
+    partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner', required: true },
+    percentage: { type: Number, required: true }
   }],
   images: [{ type: String }],
   features: [{ type: String }],
-  availableDocs: [{ type: String }],
-  specifications: {
-    engine: { type: String },
-    transmission: { type: String },
-    fuelType: { type: String },
-    displacement: { type: String },
-    maxPower: { type: String },
-    maxTorque: { type: String },
-    topSpeed: { type: String },
-    fuelTank: { type: String },
-    weight: { type: String }
+  sellerInfo: {
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    email: { type: String, required: true },
+    address: { type: String, required: true },
   },
-  serviceHistory: [{
-    date: { type: String,required: true },
-    description: { type: String,required: true },
-    cost: { type: Number,required: true }
-  }],
+  sellerAvailableDocs: {
+    nid: { type: String, required: true },
+    drivingLicense: { type: String, required: true },
+    proofOfAddress: { type: String }
+  },
+  bikeAvailableDocs: {
+    taxToken: { type: String, required: true },
+    registration: { type: String, required: true },
+    insurance: { type: String },
+    fitnessReport: { type: String }
+  },
+  serviceHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Expenses' }],
   status: { type: String, enum: ['active', 'sold', 'pending', 'inactive', 'available'], default: 'active' },
   isFeatured: { type: Boolean, default: false },
   views: { type: Number, default: 0 },
@@ -162,12 +166,22 @@ const bikeWashLocationSchema = new mongoose.Schema<BikeWashLocation>({
 })
 
 // Expenses Schema
-const expensesSchema = new mongoose.Schema<Expenses>({
-  bikeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bike' },
-  partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner' },
-  type: { type: String, enum: ['repair', 'maintenance', 'transportation', 'other'], required: true },
+const expensesSchema = new mongoose.Schema<Expense>({
+  bikeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bike', required: true },
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  type: { 
+    type: String, 
+    enum: ['repair', 'maintenance', 'transportation', 'fuel', 'insurance', 'registration', 'parts', 'labor', 'other'], 
+    required: true 
+  },
   amount: { type: Number, required: true },
   date: { type: Date, required: true },
+  adjustBikePrice: { type: Boolean, default: false },
+  adjustPartnerShares: { type: Boolean, default: false },
+  partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Partner' },
+  receiptImage: { type: String },
+  notes: { type: String },
 }, {
   timestamps: true
 })
@@ -212,7 +226,7 @@ export const UserModel = mongoose.models.User || mongoose.model<User>('User', us
 export const BikeModel = mongoose.models.Bike || mongoose.model<Bike>('Bike', bikeSchema)
 export const PurchaseOrderModel = mongoose.models.PurchaseOrder || mongoose.model<PurchaseOrder>('PurchaseOrder', purchaseOrderSchema)
 export const BikeWashLocationModel = mongoose.models.BikeWashLocation || mongoose.model<BikeWashLocation>('BikeWashLocation', bikeWashLocationSchema)
-export const ExpensesModel = mongoose.models.Expenses || mongoose.model<Expenses>('Expenses', expensesSchema)
+export const ExpensesModel = mongoose.models.Expenses || mongoose.model<Expense>('Expenses', expensesSchema)
 export const PartnerModel = mongoose.models.Partner || mongoose.model<Partner>('Partner', partnerSchema)
 export const PublicInfoModel = mongoose.models.PublicInfo || mongoose.model<PublicInfo>('PublicInfo', publicInfoSchema)
 

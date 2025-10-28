@@ -22,7 +22,8 @@ import {
   Package,
   Calendar,
   Handshake,
-  User
+  User,
+  Receipt
 } from "lucide-react"
 
 const sidebarItems = [
@@ -49,6 +50,12 @@ const sidebarItems = [
     href: "/admin/partners",
     icon: Handshake,
     description: "Partner management"
+  },
+  {
+    title: "Expenses",
+    href: "/admin/expenses",
+    icon: Receipt,
+    description: "Track expenses and service history"
   },
   {
     title: "Bike Wash",

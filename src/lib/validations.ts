@@ -6,24 +6,44 @@ export const partnerSchema = z.object({
   percentage: z.number().min(0, 'Percentage must be at least 0').max(100, 'Percentage cannot exceed 100')
 })
 
-// Service history validation schema
-export const serviceHistorySchema = z.object({
-  date: z.string().min(1, 'Date is required'),
-  description: z.string().min(1, 'Description is required'),
-  cost: z.number().min(0, 'Cost must be at least 0')
+// Expense validation schema
+export const expenseSchema = z.object({
+  bikeId: z.string().min(1, 'Bike ID is required'),
+  title: z.string().min(1, 'Title is required').max(100, 'Title cannot exceed 100 characters'),
+  description: z.string().min(1, 'Description is required').max(500, 'Description cannot exceed 500 characters'),
+  type: z.enum(['repair', 'maintenance', 'transportation', 'fuel', 'insurance', 'registration', 'other'], {
+    message: 'Invalid expense type'
+  }),
+  amount: z.number().min(0.01, 'Amount must be greater than 0'),
+  date: z.string().min(1, 'Date is required').transform((val) => new Date(val)),
+  adjustBikePrice: z.boolean().default(false),
+  adjustPartnerShares: z.boolean().default(false),
+  partnerId: z.string().optional(),
+  receiptImage: z.string().url('Invalid receipt image URL').optional(),
+  notes: z.string().max(1000, 'Notes cannot exceed 1000 characters').optional()
 })
 
-// Specifications validation schema
-export const specificationsSchema = z.object({
-  engine: z.string().optional(),
-  transmission: z.string().optional(),
-  fuelType: z.string().optional(),
-  displacement: z.string().optional(),
-  maxPower: z.string().optional(),
-  maxTorque: z.string().optional(),
-  topSpeed: z.string().optional(),
-  fuelTank: z.string().optional(),
-  weight: z.string().optional()
+// Seller info validation schema
+export const sellerInfoSchema = z.object({
+  name: z.string().min(1, 'Seller name is required'),
+  phone: z.string().min(1, 'Seller phone is required'),
+  email: z.string().email('Invalid seller email').optional(),
+  address: z.string().optional()
+})
+
+// Seller documents validation schema
+export const sellerDocsSchema = z.object({
+  nid: z.string().url('NID document must be a valid URL'),
+  drivingLicense: z.string().url('Driving license must be a valid URL'),
+  proofOfAddress: z.string().url('Proof of address must be a valid URL').optional()
+})
+
+// Bike documents validation schema
+export const bikeDocsSchema = z.object({
+  taxToken: z.string().url('Tax token document must be a valid URL'),
+  registration: z.string().url('Registration document must be a valid URL'),
+  insurance: z.string().url('Insurance document must be a valid URL').optional(),
+  fitnessReport: z.string().url('Fitness report must be a valid URL').optional()
 })
 
 // Main bike validation schema
@@ -61,6 +81,14 @@ export const bikeSchema = z.object({
     .min(1, 'Price must be at least 1')
     .max(10000000, 'Price seems unrealistic'),
   
+  purchasePrice: z.number()
+    .min(1, 'Purchase price must be at least 1')
+    .max(10000000, 'Purchase price seems unrealistic'),
+  
+  purchaseDate: z.string()
+    .min(1, 'Purchase date is required')
+    .transform((val) => new Date(val)),
+  
   myShare: z.number()
     .min(0, 'My share must be at least 0')
     .optional(),
@@ -83,15 +111,13 @@ export const bikeSchema = z.object({
     .optional()
     .default([]),
   
-  availableDocs: z.array(z.string().min(1, 'Document name cannot be empty'))
-    .optional()
-    .default([]),
+  sellerInfo: sellerInfoSchema,
   
-  specifications: specificationsSchema
-    .optional()
-    .default({}),
+  sellerAvailableDocs: sellerDocsSchema,
   
-  serviceHistory: z.array(serviceHistorySchema)
+  bikeAvailableDocs: bikeDocsSchema,
+  
+  serviceHistory: z.array(z.string())
     .optional()
     .default([]),
   
@@ -100,6 +126,26 @@ export const bikeSchema = z.object({
   isFeatured: z.boolean()
     .optional()
     .default(false)
+}).refine((data) => {
+  // Validate that partner share amounts don't exceed bike price
+  if (data.partners && data.partners.length > 0 && data.price) {
+    const totalPartnerAmount = data.partners.reduce((sum, partner) => {
+      const amount = (data.price * partner.percentage) / 100
+      return sum + amount
+    }, 0)
+    
+    if (totalPartnerAmount > data.price) {
+      return false
+    }
+    
+    // Also ensure myShare is reasonable
+    if (data.myShare && data.myShare < 0) {
+      return false
+    }
+  }
+  return true
+}, {
+  message: 'Total partner share amounts cannot exceed the bike price'
 })
 
 // Bike update schema (all fields optional except ID)
@@ -272,6 +318,31 @@ export const purchaseOrderPaymentUpdateSchema = z.object({
   duePaymentReceivingDate: z.string().optional().transform((val) => val ? new Date(val) : undefined)
 })
 
+// Expense schemas
+export const expenseCreateSchema = expenseSchema
+export const expenseUpdateSchema = expenseSchema.partial().extend({
+  bikeId: z.string().optional() // Allow bikeId to be optional in updates
+})
+
+export const expenseQuerySchema = z.object({
+  page: z.string().optional().transform((val) => val ? parseInt(val) : 1),
+  limit: z.string().optional().transform((val) => val ? parseInt(val) : 50),
+  search: z.string().optional(),
+  bikeId: z.string().optional(),
+  type: z.string().optional().refine((val) => 
+    !val || ['repair', 'maintenance', 'transportation', 'fuel', 'insurance', 'registration', 'other'].includes(val), 
+    { message: 'Invalid expense type' }
+  ),
+  sortBy: z.string().optional().refine((val) => 
+    !val || ['createdAt', 'updatedAt', 'amount', 'date', 'title', 'type'].includes(val), 
+    { message: 'Invalid sortBy field' }
+  ).transform((val) => val || 'createdAt'),
+  sortOrder: z.string().optional().refine((val) => 
+    !val || ['asc', 'desc'].includes(val), 
+    { message: 'Invalid sortOrder value' }
+  ).transform((val) => (val as 'asc' | 'desc') || 'desc')
+})
+
 export type BikeInput = z.infer<typeof bikeSchema>
 export type BikeUpdateInput = z.infer<typeof bikeUpdateSchema>
 export type BikeQuery = z.infer<typeof bikeQuerySchema>
@@ -289,3 +360,7 @@ export type PurchaseOrderUpdate = z.infer<typeof purchaseOrderUpdateSchema>
 export type PurchaseOrderQuery = z.infer<typeof purchaseOrderQuerySchema>
 export type PurchaseOrderStatusUpdate = z.infer<typeof purchaseOrderStatusUpdateSchema>
 export type PurchaseOrderPaymentUpdate = z.infer<typeof purchaseOrderPaymentUpdateSchema>
+export type ExpenseInput = z.infer<typeof expenseSchema>
+export type ExpenseCreate = z.infer<typeof expenseCreateSchema>
+export type ExpenseUpdate = z.infer<typeof expenseUpdateSchema>
+export type ExpenseQuery = z.infer<typeof expenseQuerySchema>

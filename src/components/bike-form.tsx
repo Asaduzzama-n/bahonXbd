@@ -46,23 +46,29 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
       condition: "good",
       mileage: 0,
       price: 0,
+      purchasePrice: 0,
+      purchaseDate: new Date(),
       myShare: 0,
       partners: [],
       images: [],
       features: [],
-      availableDocs: [],
-      specifications: {
-        engine: "",
-        transmission: "",
-        fuelType: "",
-        displacement: "",
-        maxPower: "",
-        maxTorque: "",
-        topSpeed: "",
-        fuelTank: "",
-        weight: ""
+      sellerInfo: {
+        name: "",
+        phone: "",
+        email: "",
+        address: ""
       },
-      serviceHistory: [],
+      sellerAvailableDocs: {
+        nid: "",
+        drivingLicense: "",
+        proofOfAddress: ""
+      },
+      bikeAvailableDocs: {
+        taxToken: "",
+        registration: "",
+        insurance: "",
+        fitnessReport: ""
+      },
       status: "active",
       isFeatured: false
     }
@@ -71,8 +77,8 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
   const watchedValues = watch()
   const [partners, setPartners] = useState<Partner[]>([])
   const [newFeature, setNewFeature] = useState("")
-  const [newDoc, setNewDoc] = useState("")
   const [newImage, setNewImage] = useState("")
+  const [shareAmountInputs, setShareAmountInputs] = useState<{[key: number]: string}>({})
 
   useEffect(() => {
     fetchPartners()
@@ -95,13 +101,30 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
         condition: bike.condition || "good",
         mileage: bike.mileage || 0,
         price: bike.price || 0,
+        purchasePrice: bike.purchasePrice || 0,
+        purchaseDate: bike.purchaseDate || "",
         myShare: bike.myShare || 0,
         partners: formattedPartners,
         images: bike.images || [],
         features: bike.features || [],
-        availableDocs: bike.availableDocs || [],
-        specifications: bike.specifications || {},
-        serviceHistory: bike.serviceHistory || [],
+        sellerInfo: bike.sellerInfo || {
+          name: "",
+          phone: "",
+          email: "",
+          address: ""
+        },
+        sellerAvailableDocs: bike.sellerAvailableDocs || {
+          nid: "",
+          drivingLicense: "",
+          proofOfAddress: ""
+        },
+        bikeAvailableDocs: bike.bikeAvailableDocs || {
+          taxToken: "",
+          registration: "",
+          insurance: "",
+          fitnessReport: ""
+        },
+
         status: bike.status || "active",
         isFeatured: bike.isFeatured || false
       })
@@ -110,7 +133,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
 
   useEffect(() => {
     calculateMyShare()
-  }, [watchedValues.price, watchedValues.partners])
+  }, [watchedValues.purchasePrice, watchedValues.partners])
 
   const fetchPartners = async () => {
     try {
@@ -126,11 +149,13 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
   }
 
   const calculateMyShare = () => {
-    if (!watchedValues.price || !watchedValues.partners) return
+    if (!watchedValues.purchasePrice || !watchedValues.partners) return
 
-    const totalPartnerPercentage = watchedValues.partners.reduce((sum, partner) => sum + partner.percentage, 0)
-    const myPercentage = Math.max(0, 100 - totalPartnerPercentage)
-    const myShare = (watchedValues.price * myPercentage) / 100
+    const totalPartnerAmount = watchedValues.partners.reduce((sum, partner) => {
+      const amount = (watchedValues.purchasePrice * partner.percentage) / 100
+      return sum + amount
+    }, 0)
+    const myShare = Math.max(0, watchedValues.purchasePrice - totalPartnerAmount)
 
     setValue('myShare', Math.round(myShare))
   }
@@ -150,19 +175,37 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
     }
   }
 
-  const handleSpecificationChange = (field: string, value: string) => {
-    const currentSpecs = watchedValues.specifications || {}
-    setValue('specifications', {
-      ...currentSpecs,
+  const handleSellerInfoChange = (field: string, value: string) => {
+    const currentSellerInfo = watchedValues.sellerInfo || {}
+    setValue('sellerInfo', {
+      ...currentSellerInfo,
       [field]: value
     })
   }
 
-  const addPartner = (partnerId: string, percentage: number) => {
+  const handleSellerDocChange = (field: string, value: string) => {
+    const currentSellerDocs = watchedValues.sellerAvailableDocs || {}
+    setValue('sellerAvailableDocs', {
+      ...currentSellerDocs,
+      [field]: value
+    })
+  }
+
+  const handleBikeDocChange = (field: string, value: string) => {
+    const currentBikeDocs = watchedValues.bikeAvailableDocs || {}
+    setValue('bikeAvailableDocs', {
+      ...currentBikeDocs,
+      [field]: value
+    })
+  }
+
+  const addPartner = (partnerId: string, shareAmount: number = 50000) => {
     const partner = partners.find(p => p._id === partnerId)
     if (!partner) return
 
-    const newPartner = { partnerId: partnerId, percentage }
+    // Calculate percentage from share amount
+    const percentage = watchedValues.purchasePrice > 0 ? (shareAmount / watchedValues.purchasePrice) * 100 : 0
+    const newPartner = { partnerId: partnerId, percentage: Math.min(100, Math.max(0, percentage)) }
     const currentPartners = watchedValues.partners || []
     setValue('partners', [...currentPartners, newPartner])
   }
@@ -172,44 +215,22 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
     setValue('partners', currentPartners.filter((_, i) => i !== index))
   }
 
-  const addToArray = (field: 'features' | 'availableDocs' | 'images', value: string) => {
+  const addToArray = (field: 'features' | 'images', value: string) => {
     if (!value.trim()) return
 
     const currentArray = watchedValues[field] || []
     setValue(field, [...currentArray, value.trim()])
 
     if (field === 'features') setNewFeature("")
-    if (field === 'availableDocs') setNewDoc("")
     if (field === 'images') setNewImage("")
   }
 
-  const removeFromArray = (field: 'features' | 'availableDocs' | 'images', index: number) => {
+  const removeFromArray = (field: 'features' | 'images', index: number) => {
     const currentArray = watchedValues[field] || []
     setValue(field, currentArray.filter((_, i) => i !== index))
   }
 
-  const addServiceRecord = () => {
-    const newRecord = {
-      date: new Date().toISOString().split('T')[0],
-      description: "",
-      cost: 0
-    }
-    const currentHistory = watchedValues.serviceHistory || []
-    setValue('serviceHistory', [...currentHistory, newRecord])
-  }
 
-  const updateServiceRecord = (index: number, field: string, value: any) => {
-    const currentHistory = watchedValues.serviceHistory || []
-    const updatedHistory = currentHistory.map((record, i) => 
-      i === index ? { ...record, [field]: value } : record
-    )
-    setValue('serviceHistory', updatedHistory)
-  }
-
-  const removeServiceRecord = (index: number) => {
-    const currentHistory = watchedValues.serviceHistory || []
-    setValue('serviceHistory', currentHistory.filter((_, i) => i !== index))
-  }
 
   const totalPartnerPercentage = watchedValues.partners?.reduce((sum, partner) => sum + partner.percentage, 0) || 0
   const myPercentage = Math.max(0, 100 - totalPartnerPercentage)
@@ -344,6 +365,34 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
               </div>
 
               <div className="space-y-3">
+                <Label htmlFor="purchasePrice" className="text-sm font-medium text-foreground">
+                  Purchase Price (৳) <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="purchasePrice"
+                  type="number"
+                  {...register('purchasePrice', { valueAsNumber: true })}
+                  min="0"
+                  placeholder="e.g., 200000"
+                  className={`${errors.purchasePrice ? 'border-destructive' : 'border-input'} bg-background`}
+                />
+                {errors.purchasePrice && <p className="text-destructive text-sm mt-1">{errors.purchasePrice.message}</p>}
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="purchaseDate" className="text-sm font-medium text-foreground">
+                  Purchase Date <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="purchaseDate"
+                  type="date"
+                  {...register('purchaseDate')}
+                  className={`${errors.purchaseDate ? 'border-destructive' : 'border-input'} bg-background`}
+                />
+                {errors.purchaseDate && <p className="text-destructive text-sm mt-1">{errors.purchaseDate.message}</p>}
+              </div>
+
+              <div className="space-y-3">
                 <Label htmlFor="status" className="text-sm font-medium text-foreground">Status</Label>
                 <Select value={watchedValues.status} onValueChange={(value) => setValue('status', value as "active" | "sold" | "pending" | "inactive" | "available")}>
                   <SelectTrigger className="w-full border-input bg-background">
@@ -387,116 +436,68 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
           </CardContent>
         </Card>
 
-        {/* Technical Specifications */}
+        {/* Seller Information */}
         <Card className="border border-border bg-card">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold text-card-foreground">Technical Specifications</CardTitle>
+            <CardTitle className="text-lg font-semibold text-card-foreground">Seller Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <Label htmlFor="engine" className="text-sm font-medium text-foreground">Engine</Label>
-                <Input
-                  id="engine"
-                  value={watchedValues.specifications?.engine || ""}
-                  onChange={(e) => handleSpecificationChange('engine', e.target.value)}
-                  placeholder="e.g., Single Cylinder, 4-Stroke"
-                  className="border-input bg-background"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="displacement" className="text-sm font-medium text-foreground">
-                  Displacement {errors.specifications?.displacement && <span className="text-destructive">*</span>}
+                <Label htmlFor="sellerName" className="text-sm font-medium text-foreground">
+                  Seller Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
-                  id="displacement"
-                  value={watchedValues.specifications?.displacement || ""}
-                  onChange={(e) => handleSpecificationChange('displacement', e.target.value)}
-                  placeholder="e.g., 149.2cc"
-                  className={`${errors.specifications?.displacement ? 'border-destructive' : 'border-input'} bg-background`}
+                  id="sellerName"
+                  value={watchedValues.sellerInfo?.name || ""}
+                  onChange={(e) => handleSellerInfoChange('name', e.target.value)}
+                  placeholder="e.g., John Doe"
+                  className={`${errors.sellerInfo?.name ? 'border-destructive' : 'border-input'} bg-background`}
                 />
-                {errors.specifications?.displacement && <p className="text-destructive text-sm mt-1">{errors.specifications?.displacement.message}</p>}
+                {errors.sellerInfo?.name && <p className="text-destructive text-sm mt-1">{errors.sellerInfo?.name.message}</p>}
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="transmission" className="text-sm font-medium text-foreground">Transmission</Label>
-                <Input
-                  id="transmission"
-                  value={watchedValues.specifications?.transmission || ""}
-                  onChange={(e) => handleSpecificationChange('transmission', e.target.value)}
-                  placeholder="e.g., 6-Speed Manual"
-                  className="border-input bg-background"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="fuelType" className="text-sm font-medium text-foreground">Fuel Type</Label>
-                <Input
-                  id="fuelType"
-                  value={watchedValues.specifications?.fuelType || ""}
-                  onChange={(e) => handleSpecificationChange('fuelType', e.target.value)}
-                  placeholder="e.g., Petrol, Octane"
-                  className="border-input bg-background"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="maxPower" className="text-sm font-medium text-foreground">Max Power</Label>
-                <Input
-                  id="maxPower"
-                  value={watchedValues.specifications?.maxPower || ""}
-                  onChange={(e) => handleSpecificationChange('maxPower', e.target.value)}
-                  placeholder="e.g., 17.1 PS @ 9000 rpm"
-                  className="border-input bg-background"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="maxTorque" className="text-sm font-medium text-foreground">Max Torque</Label>
-                <Input
-                  id="maxTorque"
-                  value={watchedValues.specifications?.maxTorque || ""}
-                  onChange={(e) => handleSpecificationChange('maxTorque', e.target.value)}
-                  placeholder="e.g., 14.4 Nm @ 7000 rpm"
-                  className="border-input bg-background"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="topSpeed" className="text-sm font-medium text-foreground">
-                  Top Speed {errors.specifications?.topSpeed && <span className="text-destructive">*</span>}
+                <Label htmlFor="sellerPhone" className="text-sm font-medium text-foreground">
+                  Phone Number <span className="text-destructive">*</span>
                 </Label>
                 <Input
-                  id="topSpeed"
-                  value={watchedValues.specifications?.topSpeed || ""}
-                  onChange={(e) => handleSpecificationChange('topSpeed', e.target.value)}
-                  placeholder="e.g., 135 km/h"
-                  className={`${errors.specifications?.topSpeed ? 'border-destructive' : 'border-input'} bg-background`}
+                  id="sellerPhone"
+                  value={watchedValues.sellerInfo?.phone || ""}
+                  onChange={(e) => handleSellerInfoChange('phone', e.target.value)}
+                  placeholder="e.g., +8801234567890"
+                  className={`${errors.sellerInfo?.phone ? 'border-destructive' : 'border-input'} bg-background`}
                 />
-                {errors.specifications?.topSpeed && <p className="text-destructive text-sm mt-1">{errors.specifications?.topSpeed.message}</p>}
+                {errors.sellerInfo?.phone && <p className="text-destructive text-sm mt-1">{errors.sellerInfo?.phone.message}</p>}
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="fuelTank" className="text-sm font-medium text-foreground">Fuel Tank Capacity</Label>
+                <Label htmlFor="sellerEmail" className="text-sm font-medium text-foreground">
+                  Email <span className="text-destructive">*</span>
+                </Label>
                 <Input
-                  id="fuelTank"
-                  value={watchedValues.specifications?.fuelTank || ""}
-                  onChange={(e) => handleSpecificationChange('fuelTank', e.target.value)}
-                  placeholder="e.g., 12 liters"
-                  className="border-input bg-background"
+                  id="sellerEmail"
+                  type="email"
+                  value={watchedValues.sellerInfo?.email || ""}
+                  onChange={(e) => handleSellerInfoChange('email', e.target.value)}
+                  placeholder="e.g., john@example.com"
+                  className={`${errors.sellerInfo?.email ? 'border-destructive' : 'border-input'} bg-background`}
                 />
+                {errors.sellerInfo?.email && <p className="text-destructive text-sm mt-1">{errors.sellerInfo?.email.message}</p>}
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="weight" className="text-sm font-medium text-foreground">Weight</Label>
+                <Label htmlFor="sellerAddress" className="text-sm font-medium text-foreground">
+                  Address <span className="text-destructive">*</span>
+                </Label>
                 <Input
-                  id="weight"
-                  value={watchedValues.specifications?.weight || ""}
-                  onChange={(e) => handleSpecificationChange('weight', e.target.value)}
-                  placeholder="e.g., 139 kg"
-                  className="border-input bg-background"
+                  id="sellerAddress"
+                  value={watchedValues.sellerInfo?.address || ""}
+                  onChange={(e) => handleSellerInfoChange('address', e.target.value)}
+                  placeholder="e.g., Dhaka, Bangladesh"
+                  className={`${errors.sellerInfo?.address ? 'border-destructive' : 'border-input'} bg-background`}
                 />
+                {errors.sellerInfo?.address && <p className="text-destructive text-sm mt-1">{errors.sellerInfo?.address.message}</p>}
               </div>
             </div>
 
@@ -543,8 +544,8 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Select
                   onValueChange={(partnerId) => {
-                    const percentage = 10 // Default percentage
-                    addPartner(partnerId, percentage)
+                    const defaultAmount = 50000 // Default share amount in BDT
+                    addPartner(partnerId, defaultAmount)
                   }}
                 >
                   <SelectTrigger className="w-full border-input bg-background">
@@ -579,19 +580,43 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-3">
-                        <Label htmlFor={`percentage-${index}`} className="text-sm font-medium text-foreground">
-                          Share Percentage (%) {errors.partners?.[index]?.percentage && <span className="text-destructive">*</span>}
+                        <Label htmlFor={`share-${index}`} className="text-sm font-medium text-foreground">
+                          Share Amount (৳) {errors.partners?.[index]?.percentage && <span className="text-destructive">*</span>}
                         </Label>
                         <Input
-                          id={`percentage-${index}`}
+                          id={`share-${index}`}
                           type="number"
                           min="0"
-                          max="100"
-                          value={partner.percentage}
+                          max={watchedValues.purchasePrice || 0}
+                          value={shareAmountInputs[index] !== undefined ? shareAmountInputs[index] : ((watchedValues.purchasePrice || 0) * partner.percentage / 100).toFixed(0)}
                           onChange={(e) => {
+                            const inputValue = e.target.value
+                            // Update local state immediately for responsive UI
+                            setShareAmountInputs(prev => ({
+                              ...prev,
+                              [index]: inputValue
+                            }))
+                          }}
+                          onBlur={(e) => {
+                            // Update form state when user finishes typing
+                            const shareAmount = parseInt(e.target.value) || 0
+                            const newPercentage = watchedValues.purchasePrice > 0 ? (shareAmount / watchedValues.purchasePrice) * 100 : 0
                             const newPartners = [...(watchedValues.partners || [])]
-                            newPartners[index].percentage = parseInt(e.target.value) || 0
+                            newPartners[index].percentage = Math.min(100, Math.max(0, newPercentage))
                             setValue('partners', newPartners)
+                            
+                            // Clear local state after updating form
+                            setShareAmountInputs(prev => {
+                              const newState = { ...prev }
+                              delete newState[index]
+                              return newState
+                            })
+                          }}
+                          onKeyDown={(e) => {
+                            // Also update on Enter key
+                            if (e.key === 'Enter') {
+                              e.currentTarget.blur()
+                            }
                           }}
                           className={`${errors.partners?.[index]?.percentage ? 'border-destructive' : 'border-input'} bg-background`}
                           placeholder="0"
@@ -601,11 +626,11 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
                         )}
                       </div>
                       <div className="space-y-3">
-                        <Label htmlFor={`share-${index}`} className="text-sm font-medium text-foreground">Share Amount (৳)</Label>
+                        <Label htmlFor={`percentage-${index}`} className="text-sm font-medium text-foreground">Share Percentage (%)</Label>
                         <Input
-                          id={`share-${index}`}
+                          id={`percentage-${index}`}
                           type="number"
-                          value={((watchedValues.price || 0) * partner.percentage / 100).toFixed(2)}
+                          value={partner.percentage.toFixed(2)}
                           disabled
                           className="border-input bg-background opacity-60"
                           placeholder="0"
@@ -636,23 +661,23 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
             <div className="bg-muted/50 border border-border rounded-lg p-6 space-y-4">
               <h4 className="font-semibold text-lg text-foreground">Share Summary</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="flex justify-between items-center p-3 bg-background rounded-lg border">
-                  <span className="text-sm text-muted-foreground">My Share:</span>
-                  <span className="font-semibold text-foreground">৳{watchedValues.myShare?.toLocaleString()}</span>
+                <div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg border border-primary/20">
+                  <span className="font-medium text-foreground">My Share:</span>
+                  <span className="font-bold text-primary text-lg">৳{watchedValues.myShare?.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-background rounded-lg border">
                   <span className="text-sm text-muted-foreground">Total Partner Share:</span>
-                  <span className="font-semibold text-foreground">{totalPartnerPercentage}%</span>
+                  <span className="font-semibold text-foreground">৳{((watchedValues.purchasePrice || 0) - (watchedValues.myShare || 0)).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg border border-primary/20 sm:col-span-2 lg:col-span-1">
-                  <span className="font-medium text-foreground">My Percentage:</span>
-                  <span className="font-bold text-primary text-lg">{myPercentage}%</span>
+                <div className="flex justify-between items-center p-3 bg-background rounded-lg border">
+                  <span className="text-sm text-muted-foreground">My Percentage:</span>
+                  <span className="font-semibold text-foreground">{myPercentage.toFixed(1)}%</span>
                 </div>
               </div>
               <div className="mt-4 p-3 bg-background rounded-lg border space-y-1">
-                <p className="text-xs text-muted-foreground">Bike Price: ৳{watchedValues.price?.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">My Share: {myPercentage}% (৳{watchedValues.myShare?.toLocaleString()})</p>
-                <p className="text-xs text-muted-foreground">Total Partner Share: {totalPartnerPercentage}%</p>
+                <p className="text-xs text-muted-foreground">Purchase Price: ৳{watchedValues.purchasePrice?.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">My Share: ৳{watchedValues.myShare?.toLocaleString()} ({myPercentage.toFixed(1)}%)</p>
+                <p className="text-xs text-muted-foreground">Partner Share: ৳{((watchedValues.purchasePrice || 0) - (watchedValues.myShare || 0)).toLocaleString()} ({totalPartnerPercentage.toFixed(1)}%)</p>
               </div>
             </div>
           </CardContent>
@@ -706,106 +731,114 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
               </div>
             </div>
 
+            <Separator className="my-6" />
+
+            {/* Seller Documents */}
             <div className="space-y-4">
-              <Label className="text-sm font-medium text-foreground">Available Documents</Label>
-              <div className="flex space-x-2">
-                <Input
-                  value={newDoc}
-                  onChange={(e) => setNewDoc(e.target.value)}
-                  placeholder="Add document (e.g., Registration, Insurance)"
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addToArray('availableDocs', newDoc))}
-                  className="border-input bg-background"
-                />
-                <Button type="button" onClick={() => addToArray('availableDocs', newDoc)} className="shrink-0">
-                  <Plus className="h-4 w-4" />
-                </Button>
+              <Label className="text-sm font-medium text-foreground">Seller Documents (Links)</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="sellerNid" className="text-sm font-medium text-foreground">
+                    NID <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="sellerNid"
+                    value={watchedValues.sellerAvailableDocs?.nid || ""}
+                    onChange={(e) => handleSellerDocChange('nid', e.target.value)}
+                    placeholder="Enter NID document link"
+                    className={`${errors.sellerAvailableDocs?.nid ? 'border-destructive' : 'border-input'} bg-background`}
+                  />
+                  {errors.sellerAvailableDocs?.nid && <p className="text-destructive text-sm mt-1">{errors.sellerAvailableDocs?.nid.message}</p>}
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="sellerDrivingLicense" className="text-sm font-medium text-foreground">
+                    Driving License <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="sellerDrivingLicense"
+                    value={watchedValues.sellerAvailableDocs?.drivingLicense || ""}
+                    onChange={(e) => handleSellerDocChange('drivingLicense', e.target.value)}
+                    placeholder="Enter driving license link"
+                    className={`${errors.sellerAvailableDocs?.drivingLicense ? 'border-destructive' : 'border-input'} bg-background`}
+                  />
+                  {errors.sellerAvailableDocs?.drivingLicense && <p className="text-destructive text-sm mt-1">{errors.sellerAvailableDocs?.drivingLicense.message}</p>}
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="sellerProofOfAddress" className="text-sm font-medium text-foreground">Proof of Address</Label>
+                  <Input
+                    id="sellerProofOfAddress"
+                    value={watchedValues.sellerAvailableDocs?.proofOfAddress || ""}
+                    onChange={(e) => handleSellerDocChange('proofOfAddress', e.target.value)}
+                    placeholder="Enter proof of address link"
+                    className="border-input bg-background"
+                  />
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {watchedValues.availableDocs?.map((doc, index) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="cursor-pointer"
-                    onClick={() => removeFromArray('availableDocs', index)}
-                  >
-                    {doc} <Minus className="ml-1 h-3 w-3" />
-                  </Badge>
-                ))}
+            </div>
+
+            <Separator className="my-6" />
+
+            {/* Bike Documents */}
+            <div className="space-y-4">
+              <Label className="text-sm font-medium text-foreground">Bike Documents (Links)</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="bikeTaxToken" className="text-sm font-medium text-foreground">
+                    Tax Token <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="bikeTaxToken"
+                    value={watchedValues.bikeAvailableDocs?.taxToken || ""}
+                    onChange={(e) => handleBikeDocChange('taxToken', e.target.value)}
+                    placeholder="Enter tax token link"
+                    className={`${errors.bikeAvailableDocs?.taxToken ? 'border-destructive' : 'border-input'} bg-background`}
+                  />
+                  {errors.bikeAvailableDocs?.taxToken && <p className="text-destructive text-sm mt-1">{errors.bikeAvailableDocs?.taxToken.message}</p>}
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="bikeRegistration" className="text-sm font-medium text-foreground">
+                    Registration <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="bikeRegistration"
+                    value={watchedValues.bikeAvailableDocs?.registration || ""}
+                    onChange={(e) => handleBikeDocChange('registration', e.target.value)}
+                    placeholder="Enter registration link"
+                    className={`${errors.bikeAvailableDocs?.registration ? 'border-destructive' : 'border-input'} bg-background`}
+                  />
+                  {errors.bikeAvailableDocs?.registration && <p className="text-destructive text-sm mt-1">{errors.bikeAvailableDocs?.registration.message}</p>}
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="bikeInsurance" className="text-sm font-medium text-foreground">Insurance</Label>
+                  <Input
+                    id="bikeInsurance"
+                    value={watchedValues.bikeAvailableDocs?.insurance || ""}
+                    onChange={(e) => handleBikeDocChange('insurance', e.target.value)}
+                    placeholder="Enter insurance link"
+                    className="border-input bg-background"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="bikeFitnessReport" className="text-sm font-medium text-foreground">Fitness Report</Label>
+                  <Input
+                    id="bikeFitnessReport"
+                    value={watchedValues.bikeAvailableDocs?.fitnessReport || ""}
+                    onChange={(e) => handleBikeDocChange('fitnessReport', e.target.value)}
+                    placeholder="Enter fitness report link"
+                    className="border-input bg-background"
+                  />
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Service History */}
-        <Card className="border border-border bg-card">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold text-card-foreground">Service History</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <Button type="button" onClick={addServiceRecord} variant="outline" className="w-full sm:w-auto">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Service Record
-            </Button>
 
-            {watchedValues.serviceHistory && watchedValues.serviceHistory.length > 0 ? (
-              <div className="space-y-4">
-                {watchedValues.serviceHistory.map((record, index) => (
-                  <div key={index} className="border border-border rounded-lg p-4 bg-muted/30 space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <h4 className="font-medium text-foreground">Service Record #{index + 1}</h4>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeServiceRecord(index)}
-                      >
-                        <Minus className="h-4 w-4 mr-2" />
-                        Remove
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div className="space-y-3">
-                        <Label htmlFor={`date-${index}`} className="text-sm font-medium text-foreground">Date</Label>
-                        <Input
-                          id={`date-${index}`}
-                          type="date"
-                          value={record.date}
-                          onChange={(e) => updateServiceRecord(index, 'date', e.target.value)}
-                          className="border-input bg-background"
-                        />
-                      </div>
-                      <div className="space-y-3">
-                        <Label htmlFor={`cost-${index}`} className="text-sm font-medium text-foreground">Cost (৳)</Label>
-                        <Input
-                          id={`cost-${index}`}
-                          type="number"
-                          value={record.cost}
-                          onChange={(e) => updateServiceRecord(index, 'cost', parseInt(e.target.value) || 0)}
-                          min="0"
-                          className="border-input bg-background"
-                        />
-                      </div>
-                      <div className="space-y-3">
-                        <Label htmlFor={`description-${index}`} className="text-sm font-medium text-foreground">Description</Label>
-                        <Input
-                          id={`description-${index}`}
-                          value={record.description}
-                          onChange={(e) => updateServiceRecord(index, 'description', e.target.value)}
-                          placeholder="e.g., Oil change, brake pad replacement"
-                          className="border-input bg-background"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No service records added yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Form Actions */}
         <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
