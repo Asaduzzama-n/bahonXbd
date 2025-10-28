@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { Menu, X, Bike, User, LogIn, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -22,6 +23,7 @@ const navItems = [
 ]
 
 export function Navigation() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -72,7 +74,11 @@ export function Navigation() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium transition-colors hover:text-primary"
+                className={`text-sm font-medium transition-colors hover:text-primary relative pb-2 ${
+                  pathname === item.href
+                    ? 'text-primary border-b-2 border-primary'
+                    : ''
+                }`}
               >
                 {item.name}
               </Link>
@@ -125,7 +131,9 @@ export function Navigation() {
                     <Link
                       key={item.name}
                       href={item.href}
-                      className="text-lg font-medium transition-colors hover:text-primary"
+                      className={`text-lg font-medium transition-colors hover:text-primary ${
+                        pathname === item.href ? 'text-primary font-semibold' : ''
+                      }`}
                       onClick={() => setIsOpen(false)}
                     >
                       {item.name}

@@ -17,87 +17,19 @@ import {
   CheckCircle,
   Heart,
   Target,
-  Zap
+  Zap,
+  Bike,
+  Calendar,
+  FileCheck,
+  Wrench,
+  Eye,
+  Handshake,
+  FileText
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-const teamMembers = [
-  {
-    name: 'Ahmed Rahman',
-    role: 'Founder & CEO',
-    image: '/api/placeholder/300/300',
-    description: 'Passionate bike enthusiast with 15+ years in the automotive industry.'
-  },
-  {
-    name: 'Fatima Khan',
-    role: 'Head of Operations',
-    image: '/api/placeholder/300/300',
-    description: 'Expert in logistics and customer service with a focus on quality assurance.'
-  },
-  {
-    name: 'Mohammad Ali',
-    role: 'Technical Lead',
-    image: '/api/placeholder/300/300',
-    description: 'Motorcycle mechanic and technical expert ensuring all bikes meet our standards.'
-  },
-  {
-    name: 'Rashida Begum',
-    role: 'Customer Relations',
-    image: '/api/placeholder/300/300',
-    description: 'Dedicated to providing exceptional customer experience and support.'
-  }
-]
 
-const achievements = [
-  {
-    icon: Users,
-    title: '10,000+',
-    description: 'Happy Customers',
-    color: 'brand-orange'
-  },
-  {
-    icon: Award,
-    title: '5,000+',
-    description: 'Bikes Sold',
-    color: 'brand-orange'
-  },
-  {
-    icon: Shield,
-    title: '99.8%',
-    description: 'Customer Satisfaction',
-    color: 'brand-orange'
-  },
-  {
-    icon: Clock,
-    title: '5+',
-    description: 'Years of Excellence',
-    color: 'brand-orange'
-  }
-]
-
-const values = [
-  {
-    icon: Shield,
-    title: 'Trust & Transparency',
-    description: 'We believe in honest dealings and transparent processes. Every bike is thoroughly inspected and verified before listing.'
-  },
-  {
-    icon: Heart,
-    title: 'Customer First',
-    description: 'Our customers are at the heart of everything we do. We strive to exceed expectations in every interaction.'
-  },
-  {
-    icon: Target,
-    title: 'Quality Assurance',
-    description: 'We maintain the highest standards of quality in our bike selection and services to ensure customer satisfaction.'
-  },
-  {
-    icon: Zap,
-    title: 'Innovation',
-    description: 'We continuously innovate our platform and services to provide the best bike buying experience in Bangladesh.'
-  }
-]
 
 export default function AboutPage() {
   return (
@@ -106,29 +38,29 @@ export default function AboutPage() {
       
       <main>
         {/* Hero Section */}
-        <section className="relative py-20 hero-gradient text-white">
+        <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <Badge className="mb-4 bg-white/20 text-white border-white/30">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
                 About BahonXBD
               </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Your Trusted Partner in
-                <span className="text-white block">Bike Trading</span>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
+                Your Trusted <span className="text-primary">Bike Partner</span>
               </h1>
-              <p className="text-xl text-orange-100 mb-8 leading-relaxed">
-                We're revolutionizing the bike marketplace in Bangladesh by connecting buyers and sellers 
-                through a trusted, transparent, and efficient platform.
+              <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+                Hi, I'm a passionate biker with over 6 years of experience in the second-hand bike business. 
+                As a rider myself, I understand what makes a great bike and I'm committed to helping you find 
+                the perfect ride with complete transparency and professional service.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 font-semibold button-height">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
                   <Link href="/listings">
-                    Browse Bikes
+                    Browse Available Bikes
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-orange-600 font-semibold button-height">
-                  <Link href="/bike-wash">
-                    Our Services
+                <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-muted" asChild>
+                  <Link href="#story">
+                    My Story
                   </Link>
                 </Button>
               </div>
@@ -137,73 +69,74 @@ export default function AboutPage() {
         </section>
 
         {/* Achievements Section */}
-        <section className="py-16 bg-muted/30">
+        <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {achievements.map((achievement, index) => {
-                const IconComponent = achievement.icon
-                return (
-                  <div key={index} className="text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900 shadow-lg mb-4">
-                      <IconComponent className={`h-8 w-8 ${achievement.color}`} />
-                    </div>
-                    <div className="text-3xl font-bold mb-2 brand-orange">{achievement.title}</div>
-                    <div className="text-muted-foreground">{achievement.description}</div>
-                  </div>
-                )
-              })}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Bike className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-3xl font-bold text-primary mb-2">200+</h3>
+                <p className="text-muted-foreground">Bikes Successfully Sold</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-3xl font-bold text-primary mb-2">6+</h3>
+                <p className="text-muted-foreground">Years of Experience</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Star className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-3xl font-bold text-primary mb-2">100%</h3>
+                <p className="text-muted-foreground">Document Verification</p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Our Story Section */}
-        <section className="py-20">
+        <section id="story" className="py-20">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
-                <Badge className="mb-4 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200 dark:border-orange-800">
-                  Our Story
+                <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                  My Journey
                 </Badge>
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                  Building Bangladesh's Premier Bike Marketplace
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
+                  From Passion to Profession
                 </h2>
-                <div className="space-y-4 text-muted-foreground leading-relaxed">
-                  <p>
-                    Founded in 2019, BahonXBD started with a simple vision: to create a trustworthy 
-                    platform where bike enthusiasts could buy and sell motorcycles with confidence. 
-                    What began as a small initiative has grown into Bangladesh's most trusted bike marketplace.
-                  </p>
-                  <p>
-                    Our journey started when our founder, Ahmed Rahman, experienced the challenges of 
-                    buying a used motorcycle. The lack of transparency, unreliable information, and 
-                    limited options motivated him to create a solution that would benefit the entire 
-                    motorcycle community in Bangladesh.
-                  </p>
-                  <p>
-                    Today, we're proud to have facilitated thousands of successful bike transactions, 
-                    helped countless families find their perfect ride, and built a community of 
-                    satisfied customers who trust us with their most important purchases.
-                  </p>
-                </div>
-                <div className="mt-8">
-                  <Button className="bg-brand-orange hover-brand-orange button-height" asChild>
-                    <Link href="/listings">
-                      Start Your Journey
-                    </Link>
-                  </Button>
-                </div>
+                <p className="text-muted-foreground mb-6">
+                  What started as a personal love for motorcycles has evolved into a trusted business 
+                  serving fellow bikers across Bangladesh. Over the past 6+ years, I've built my 
+                  reputation on honesty, transparency, and genuine care for every customer.
+                </p>
+                <p className="text-muted-foreground mb-6">
+                  As a biker myself, I understand the importance of finding the right bike - one that 
+                  matches your needs, budget, and dreams. That's why I personally inspect every bike, 
+                  verify all documents, and ensure complete transparency in every transaction.
+                </p>
+                <p className="text-muted-foreground mb-8">
+                  My partnerships with professional bike service providers mean you get not just a bike, 
+                  but complete peace of mind with proper documentation transfer and after-sale support.
+                </p>
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
+                  <Link href="/listings">
+                    See Available Bikes
+                  </Link>
+                </Button>
               </div>
               <div className="relative">
-                <div className="relative z-10">
-                  <Image
-                    src="/api/placeholder/600/400"
-                    alt="BahonXBD Story"
-                    width={600}
-                    height={400}
-                    className="rounded-lg shadow-2xl"
-                  />
-                </div>
-                <div className="absolute -bottom-6 -right-6 w-full h-full bg-orange-100 dark:bg-orange-900/30 rounded-lg -z-10"></div>
+                <div className="absolute inset-0 bg-primary/10 rounded-2xl transform rotate-3"></div>
+                <Image
+                  src="/logo.jpg"
+                  alt="BahonXBD Owner"
+                  width={500}
+                  height={400}
+                  className="relative rounded-2xl shadow-2xl object-cover"
+                />
               </div>
             </div>
           </div>
@@ -213,120 +146,187 @@ export default function AboutPage() {
         <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-              <Badge className="mb-4 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200 dark:border-orange-800">
-                Our Values
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                My Values
               </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                What Drives Us Forward
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
+                What I Stand For
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Our core values shape every decision we make and every service we provide.
+                These core principles guide every interaction and transaction in my business.
               </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {values.map((value, index) => {
-                const IconComponent = value.icon
-                return (
-                  <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
-                          <IconComponent className="h-6 w-6 brand-orange" />
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold mb-3">{value.title}</h3>
-                        <p className="text-muted-foreground leading-relaxed">{value.description}</p>
-                      </div>
-                    </div>
-                  </Card>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* Team Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <Badge className="mb-4 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200 dark:border-orange-800">
-                Our Team
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Meet the People Behind BahonXBD
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Our dedicated team of professionals is committed to providing you with the best bike buying experience.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {teamMembers.map((member, index) => (
-                <Card key={index} className="text-center overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      width={300}
-                      height={300}
-                      className="w-full h-64 object-cover"
-                    />
-                  </div>
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold mb-2">{member.name}</h3>
-                    <Badge className="mb-3 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">{member.role}</Badge>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {member.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Why Choose Us Section */}
-        <section className="py-20 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <Badge className="mb-4 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200 dark:border-orange-800">
-                Why Choose Us
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                The BahonXBD Advantage
-              </h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="p-6 text-center">
-                <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="h-8 w-8 brand-orange" />
+              <Card className="p-8 text-center bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Shield className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Verified Listings</h3>
+                <h3 className="text-xl font-semibold mb-4 text-foreground">Complete Transparency</h3>
                 <p className="text-muted-foreground">
-                  Every bike on our platform is thoroughly inspected and verified for authenticity and condition.
+                  Every bike comes with full disclosure of its condition, history, and any issues. 
+                  No hidden problems, no surprises - just honest information.
                 </p>
               </Card>
               
-              <Card className="p-6 text-center">
-                <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Shield className="h-8 w-8 brand-orange" />
+              <Card className="p-8 text-center bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <FileCheck className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Secure Transactions</h3>
+                <h3 className="text-xl font-semibold mb-4 text-foreground">Document Verification</h3>
                 <p className="text-muted-foreground">
-                  Our secure platform ensures safe and transparent transactions for both buyers and sellers.
+                  I personally verify all documents and assist with proper transfer procedures. 
+                  Your legal ownership is guaranteed and hassle-free.
                 </p>
               </Card>
               
-              <Card className="p-6 text-center">
-                <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Star className="h-8 w-8 brand-orange" />
+              <Card className="p-8 text-center bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Users className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Expert Support</h3>
+                <h3 className="text-xl font-semibold mb-4 text-foreground">Personal Service</h3>
                 <p className="text-muted-foreground">
-                  Our team of motorcycle experts is always ready to help you make the right choice.
+                  As a fellow biker, I understand your needs. You get personalized attention 
+                  and ongoing support even after your purchase.
+                </p>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Expertise Section */}
+        <section className="py-20">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                My Expertise
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
+                What Sets Me Apart
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                6+ years of hands-on experience and genuine passion for motorcycles.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <Card className="p-6 bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Wrench className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-3 text-foreground">Technical Knowledge</h3>
+                <p className="text-muted-foreground">
+                  Deep understanding of motorcycle mechanics, common issues, and maintenance requirements 
+                  from years of riding and dealing with bikes.
+                </p>
+              </Card>
+              
+              <Card className="p-6 bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Eye className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-3 text-foreground">Quality Inspection</h3>
+                <p className="text-muted-foreground">
+                  Every bike undergoes thorough inspection. I check engine condition, electrical systems, 
+                  brakes, and overall safety before listing.
+                </p>
+              </Card>
+              
+              <Card className="p-6 bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Handshake className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-3 text-foreground">Professional Network</h3>
+                <p className="text-muted-foreground">
+                  Strong partnerships with trusted mechanics, parts suppliers, and service centers 
+                  for comprehensive after-sale support.
+                </p>
+              </Card>
+              
+              <Card className="p-6 bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <FileText className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-3 text-foreground">Legal Expertise</h3>
+                <p className="text-muted-foreground">
+                  Complete knowledge of vehicle registration, transfer procedures, and legal requirements 
+                  in Bangladesh. Hassle-free documentation guaranteed.
+                </p>
+              </Card>
+              
+              <Card className="p-6 bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Heart className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-3 text-foreground">Genuine Passion</h3>
+                <p className="text-muted-foreground">
+                  This isn't just business for me - it's my passion. I treat every customer like a fellow 
+                  rider and every bike with the respect it deserves.
+                </p>
+              </Card>
+              
+              <Card className="p-6 bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Clock className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-3 text-foreground">Proven Track Record</h3>
+                <p className="text-muted-foreground">
+                  200+ successful sales, countless satisfied customers, and a reputation built on trust 
+                  and reliability over 6+ years in the business.
+                </p>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+
+
+        {/* Why Choose Me Section */}
+        <section className="py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                Why Choose Me
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
+                The BahonXBD Advantage
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Personal service, professional expertise, and genuine care for every customer.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="p-6 text-center bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-foreground">Personal Inspection</h3>
+                <p className="text-muted-foreground">
+                  I personally inspect every bike, checking engine, brakes, electrical systems, and overall condition 
+                  before listing. No surprises, just honest assessment.
+                </p>
+              </Card>
+              
+              <Card className="p-6 text-center bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Shield className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-foreground">Document Guarantee</h3>
+                <p className="text-muted-foreground">
+                  Complete document verification and transfer assistance. I handle all paperwork and ensure 
+                  legal ownership transfer with zero hassle for you.
+                </p>
+              </Card>
+              
+              <Card className="p-6 text-center bg-card border-border hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Star className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-foreground">Ongoing Support</h3>
+                <p className="text-muted-foreground">
+                  My service doesn't end with the sale. Get ongoing support, maintenance advice, and access 
+                  to my network of trusted service providers.
                 </p>
               </Card>
             </div>
@@ -338,10 +338,10 @@ export default function AboutPage() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-16">
-                <Badge className="mb-4 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200 dark:border-orange-800">
+                <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
                   Get in Touch
                 </Badge>
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
                   Ready to Start Your Journey?
                 </h2>
                 <p className="text-xl text-muted-foreground">
@@ -350,11 +350,11 @@ export default function AboutPage() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Card className="p-6 text-center">
-                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="h-6 w-6 brand-orange" />
+                <Card className="p-6 text-center bg-card border-border hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-2">Visit Us</h3>
+                  <h3 className="font-semibold mb-2 text-foreground">Visit Us</h3>
                   <p className="text-muted-foreground text-sm">
                     123 Bike Street<br />
                     Dhanmondi, Dhaka 1205<br />
@@ -362,11 +362,11 @@ export default function AboutPage() {
                   </p>
                 </Card>
                 
-                <Card className="p-6 text-center">
-                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <Phone className="h-6 w-6 brand-orange" />
+                <Card className="p-6 text-center bg-card border-border hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <Phone className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-2">Call Us</h3>
+                  <h3 className="font-semibold mb-2 text-foreground">Call Us</h3>
                   <p className="text-muted-foreground text-sm">
                     +880 1700-000000<br />
                     +880 2-9876543<br />
@@ -374,11 +374,11 @@ export default function AboutPage() {
                   </p>
                 </Card>
                 
-                <Card className="p-6 text-center">
-                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <Mail className="h-6 w-6 brand-orange" />
+                <Card className="p-6 text-center bg-card border-border hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <Mail className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-2">Email Us</h3>
+                  <h3 className="font-semibold mb-2 text-foreground">Email Us</h3>
                   <p className="text-muted-foreground text-sm">
                     info@bahonxbd.com<br />
                     support@bahonxbd.com<br />
@@ -388,7 +388,7 @@ export default function AboutPage() {
               </div>
               
               <div className="text-center mt-12">
-                <Button size="lg" className="bg-brand-orange hover-brand-orange button-height" asChild>
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
                   <Link href="/listings">
                     Start Browsing Bikes
                   </Link>
