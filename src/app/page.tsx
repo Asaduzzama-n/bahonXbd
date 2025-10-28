@@ -1,11 +1,13 @@
 import Link from "next/link"
-import { Star, Users, Award, Clock, Search, Filter, ArrowRight, CheckCircle } from "lucide-react"
+import { ArrowRight, Award, CheckCircle, Clock, Star, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { HeroSection } from "@/components/hero-section"
+import { QuickSearch } from "@/components/quick-search"
+import { FeaturedBikes } from "@/components/featured-bikes"
+import { RecentlySold } from "@/components/recently-sold"
 
 // Mock data - in real app this would come from database
 const platformStats = {
@@ -21,40 +23,104 @@ const featuredBikes = [
     brand: "Yamaha",
     model: "R15 V4",
     year: 2023,
-    price: 485000,
+    price: "৳4,85,000",
     image: "/api/placeholder/400/300",
-    condition: "Excellent",
-    engineSize: 155,
-    color: "Racing Blue"
+    mileage: "15,000 km",
+    location: "Dhaka, Bangladesh"
   },
   {
     id: 2,
     brand: "Honda",
     model: "CBR 150R",
     year: 2022,
-    price: 420000,
+    price: "৳4,20,000",
     image: "/api/placeholder/400/300",
-    condition: "Good",
-    engineSize: 149,
-    color: "Pearl White"
+    mileage: "22,000 km",
+    location: "Chittagong, Bangladesh"
   },
   {
     id: 3,
     brand: "Suzuki",
     model: "Gixxer SF",
     year: 2023,
-    price: 395000,
+    price: "৳3,95,000",
     image: "/api/placeholder/400/300",
-    condition: "Excellent",
-    engineSize: 155,
-    color: "Metallic Black"
+    mileage: "8,500 km",
+    location: "Sylhet, Bangladesh"
+  },
+  {
+    id: 4,
+    brand: "KTM",
+    model: "Duke 390",
+    year: 2023,
+    price: "৳6,50,000",
+    image: "/api/placeholder/400/300",
+    mileage: "12,000 km",
+    location: "Dhaka, Bangladesh"
+  },
+  {
+    id: 5,
+    brand: "Bajaj",
+    model: "Dominar 400",
+    year: 2022,
+    price: "৳3,80,000",
+    image: "/api/placeholder/400/300",
+    mileage: "18,000 km",
+    location: "Rajshahi, Bangladesh"
   }
 ]
 
 const soldBikes = [
-  { brand: "KTM", model: "Duke 200", price: 380000, soldDate: "2024-01-15" },
-  { brand: "Bajaj", model: "Pulsar NS200", price: 295000, soldDate: "2024-01-10" },
-  { brand: "TVS", model: "Apache RTR 200", price: 285000, soldDate: "2024-01-08" }
+  { 
+    id: 1, 
+    brand: "KTM", 
+    model: "Duke 200", 
+    year: 2023,
+    price: "৳3,80,000", 
+    image: "/api/placeholder/400/300",
+    soldDate: "2024-01-15",
+    location: "Dhaka, Bangladesh"
+  },
+  { 
+    id: 2, 
+    brand: "Bajaj", 
+    model: "Pulsar NS200", 
+    year: 2022,
+    price: "৳2,95,000", 
+    image: "/api/placeholder/400/300",
+    soldDate: "2024-01-10",
+    location: "Chittagong, Bangladesh"
+  },
+  { 
+    id: 3, 
+    brand: "TVS", 
+    model: "Apache RTR 200", 
+    year: 2023,
+    price: "৳2,85,000", 
+    image: "/api/placeholder/400/300",
+    soldDate: "2024-01-08",
+    location: "Sylhet, Bangladesh"
+  },
+  { 
+    id: 4, 
+    brand: "Honda", 
+    model: "CB Shine", 
+    year: 2022,
+    price: "৳1,85,000", 
+    image: "/api/placeholder/400/300",
+    soldDate: "2024-01-05",
+    location: "Rajshahi, Bangladesh"
+  },
+  { 
+    id: 5, 
+    brand: "Yamaha", 
+    model: "FZ-S", 
+    year: 2023,
+    price: "৳2,45,000", 
+    image: "/api/placeholder/400/300",
+    soldDate: "2024-01-03",
+    location: "Khulna, Bangladesh"
+  }
 ]
 
 const customerReviews = [
@@ -84,172 +150,16 @@ export default function Home() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative hero-gradient text-white py-20 lg:py-32">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Your Trusted <span className="text-white">Bike Platform</span>
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-orange-100">
-              Quality motorcycles, transparent deals, and professional service you can trust
-            </p>
-            
-            {/* Trust Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-white">{platformStats.totalBikesSold}+</div>
-                <div className="text-sm md:text-base text-orange-100">Bikes Sold</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-white">{platformStats.happyClients}+</div>
-                <div className="text-sm md:text-base text-orange-100">Happy Clients</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-white">{platformStats.yearsInBusiness}</div>
-                <div className="text-sm md:text-base text-orange-100">Years Experience</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-white">{platformStats.averageRating}/5</div>
-                <div className="text-sm md:text-base text-orange-100">Average Rating</div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 font-semibold">
-                <Link href="/listings" className="flex items-center gap-2">
-                  Browse Bikes <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-orange-600 font-semibold">
-                <Link href="/about">Learn More</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection platformStats={platformStats} />
 
       {/* Quick Search */}
-      <section className="py-12 bg-muted/50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-center mb-8">Find Your Perfect Bike</h2>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <Input 
-                  placeholder="Search by brand, model, or keyword..." 
-                  className="h-12 text-lg"
-                />
-              </div>
-              <Button size="lg" className="md:w-auto bg-brand-orange hover-brand-orange">
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </Button>
-              <Button size="lg" variant="outline" className="md:w-auto">
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <QuickSearch />
 
       {/* Featured Bikes */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold">Featured Bikes</h2>
-            <Link href="/listings">
-              <Button variant="outline">View All <ArrowRight className="h-4 w-4 ml-2" /></Button>
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredBikes.map((bike) => (
-              <Card key={bike.id} className="bike-card flex flex-col h-full">
-                <CardHeader className="p-0">
-                  <div className="aspect-video bg-muted rounded-t-lg flex items-center justify-center">
-                    <div className="text-muted-foreground">Bike Image</div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 flex-1 flex flex-col">
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-lg">{bike.brand} {bike.model}</CardTitle>
-                    <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">{bike.condition}</Badge>
-                  </div>
-                  <CardDescription className="mb-3">
-                    {bike.year} • {bike.engineSize}CC • {bike.color}
-                  </CardDescription>
-                  <div className="text-2xl font-bold brand-orange mb-3">
-                    ৳{bike.price.toLocaleString()}
-                  </div>
-                  <div className="mt-auto">
-                    <div className="flex gap-2 w-full">
-                      <Button className="flex-1 bg-brand-orange hover-brand-orange">View Details</Button>
-                      <Button variant="outline" className="flex-1 border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white">Contact</Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FeaturedBikes featuredBikes={featuredBikes} />
 
       {/* Recently Sold */}
-      <section className="py-16 bg-muted/50">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold">Recently Sold Bikes</h2>
-            <Button variant="outline" className="border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white">
-              View All Sold <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {soldBikes.map((bike, index) => (
-              <Card key={index} className="bike-card flex flex-col h-full">
-                <CardHeader className="p-0">
-                  <div className="aspect-video bg-muted rounded-t-lg flex items-center justify-center relative">
-                    <div className="text-muted-foreground">Bike Image</div>
-                    <Badge className="absolute top-2 right-2 bg-brand-orange text-white">
-                      Sold
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 flex-1 flex flex-col">
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-lg">{bike.brand} {bike.model}</CardTitle>
-                    <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Sold
-                    </Badge>
-                  </div>
-                  <CardDescription className="mb-3">
-                    Sold on {new Date(bike.soldDate).toLocaleDateString()}
-                  </CardDescription>
-                  <div className="text-2xl font-bold brand-orange mb-3">
-                    ৳{bike.price.toLocaleString()}
-                  </div>
-                  <div className="mt-auto">
-                    <div className="flex gap-2 w-full">
-                      <Button className="flex-1 bg-brand-orange hover-brand-orange">View Similar</Button>
-                      <Button variant="outline" className="flex-1 border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white">Get Alert</Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="text-center mt-8">
-            <p className="text-muted-foreground mb-4">Join hundreds of satisfied customers who found their perfect bike</p>
-            <Button className="bg-brand-orange hover-brand-orange">
-              <Link href="/listings">Find Your Bike Today</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      <RecentlySold soldBikes={soldBikes} />
 
       {/* Customer Reviews */}
       <section className="py-16">
@@ -295,7 +205,7 @@ export default function Home() {
       </section>
 
       {/* Trust & Transparency Section */}
-      <section className="py-16 bg-muted/50">
+      {/* <section className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-8">Why Choose BahonXBD?</h2>
@@ -324,41 +234,55 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
-      <section className="py-20 hero-gradient text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white drop-shadow-lg">
-              Ready to Find Your Perfect Bike?
-            </h2>
-            <p className="text-xl md:text-2xl mb-10 text-orange-50 leading-relaxed">
-              Browse our extensive collection of quality motorcycles or get personalized assistance from our experts
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 font-semibold px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                Ready to Find Your Perfect Bike?
+              </h2>
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+                Browse our extensive collection of quality motorcycles or get personalized assistance from our experts
+              </p>
+            </div>
+            
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4 text-lg">
                 <Link href="/listings" className="flex items-center gap-2">
                   Browse All Bikes <ArrowRight className="h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-orange-600 font-semibold px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+              <Button size="lg" variant="outline" className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold px-8 py-4 text-lg">
                 <Link href="/bike-wash">Bike Wash Services</Link>
               </Button>
             </div>
-            <div className="mt-8 flex justify-center items-center gap-6 text-orange-100">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5" />
-                <span>Quality Assured</span>
+
+            {/* Trust Indicators */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center p-6 bg-card border border-border rounded-lg">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">Quality Assured</h3>
+                <p className="text-muted-foreground text-sm">Every bike thoroughly inspected and verified</p>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5" />
-                <span>Expert Support</span>
+              <div className="text-center p-6 bg-card border border-border rounded-lg">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">Expert Support</h3>
+                <p className="text-muted-foreground text-sm">Professional guidance from our experienced team</p>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5" />
-                <span>Trusted Platform</span>
+              <div className="text-center p-6 bg-card border border-border rounded-lg">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Award className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">Trusted Platform</h3>
+                <p className="text-muted-foreground text-sm">1000+ satisfied customers and growing</p>
               </div>
             </div>
           </div>

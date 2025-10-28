@@ -45,7 +45,7 @@ export default function BikesManagement() {
   const handleDelete = async (bike: Bike) => {
     if (confirm('Are you sure you want to delete this bike listing?')) {
       try {
-        const response = await fetch(`/api/admin/bikes/${bike._id}`, {
+        const response = await fetch(`/api/bikes?id=${bike._id}`, {
           method: 'DELETE'
         })
         if (response.ok) {

@@ -19,7 +19,6 @@ const navItems = [
   { name: "Listings", href: "/listings" },
   { name: "About Us", href: "/about" },
   { name: "Bike Wash", href: "/bike-wash" },
-  { name: "Admin", href: "/admin" },
 ]
 
 export function Navigation() {
@@ -84,17 +83,22 @@ export function Navigation() {
           <div className="flex items-center space-x-2">
             {/* Desktop Auth Links */}
             <div className="hidden md:flex items-center space-x-2">
-              {!isLoading && user && user.role === 'admin' && (
+              {!isLoading && user && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center space-x-2">
                       <User className="h-4 w-4" />
-                      <span>Admin</span>
+                      <span>{user?.name ? user.name : 'Account'}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    {user.role === 'admin' && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin">Admin Dashboard</Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild>
-                      <Link href="/admin">Admin Dashboard</Link>
+                      <Link href="/profile">Profile</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
@@ -128,17 +132,27 @@ export function Navigation() {
                     </Link>
                   ))}
                   
-                  {/* Mobile Admin Links */}
-                  {!isLoading && user && user.role === 'admin' && (
+                  {/* Mobile Account Links */}
+                  {!isLoading && user && (
                     <div className="border-t pt-4 mt-6">
                       <div className="space-y-2">
+                        {user.role === 'admin' && (
+                          <Link
+                            href="/admin"
+                            className="flex items-center space-x-2 text-lg font-medium transition-colors hover:text-primary"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            <User className="h-4 w-4" />
+                            <span>Admin Dashboard</span>
+                          </Link>
+                        )}
                         <Link
-                          href="/admin"
+                          href="/profile"
                           className="flex items-center space-x-2 text-lg font-medium transition-colors hover:text-primary"
                           onClick={() => setIsOpen(false)}
                         >
                           <User className="h-4 w-4" />
-                          <span>Admin Dashboard</span>
+                          <span>Profile</span>
                         </Link>
                         <button
                           onClick={() => {
