@@ -44,14 +44,14 @@ export default function EditPurchaseOrder() {
 
       if (bikesResponse.ok) {
         const bikesData = await bikesResponse.json()
-        setBikes(bikesData.data.bikes || [])
+        setBikes(bikesData.data || [])
       } else {
         toast.error('Failed to fetch bikes')
       }
 
       if (partnersResponse.ok) {
         const partnersData = await partnersResponse.json()
-        setPartners(partnersData.data.partners || [])
+        setPartners(partnersData.data || [])
       } else {
         toast.error('Failed to fetch partners')
       }
@@ -123,8 +123,6 @@ export default function EditPurchaseOrder() {
       onSubmit={handleSubmit}
       onCancel={handleCancel}
       isLoading={isLoading}
-      bikes={bikes}
-      partners={partners}
     />
   )
 }

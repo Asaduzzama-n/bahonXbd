@@ -2,8 +2,10 @@ import { NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/database';
 import { PurchaseOrderModel, BikeModel, PartnerModel } from '@/lib/database';
 import { checkPermission } from '@/lib/auth';
-import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils';
+import { sendSuccessResponse, sendErrorResponse } from '@/lib/api-utils/responseUtils';
 import { purchaseOrderUpdateSchema, purchaseOrderStatusUpdateSchema, purchaseOrderPaymentUpdateSchema } from '@/lib/validations';
+import { ZodError } from 'zod';
+import handleZodError from '@/lib/errors/handleZodError';
 
 // GET - Fetch single purchase order by ID
 export async function GET(
@@ -11,20 +13,20 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const permissionCheck = await checkPermission(request);
-    if (!permissionCheck.success) {
-      return sendErrorResponse(permissionCheck.message, 401);
-    }
+
+
+    await checkPermission(request);
+
 
     await connectToDatabase();
 
     const purchaseOrder = await PurchaseOrderModel.findById(params.id)
-      .populate('bikeId', 'make model year price specifications images')
+      .populate('bikeId', 'title brand model year price')
       .populate('partnersProfit.partnerId', 'name email phone address')
-      .lean();
+      .lean() as any;
 
     if (!purchaseOrder) {
-      return sendErrorResponse('Purchase order not found', 404);
+      return sendErrorResponse({message: 'Purchase order not found', statusCode: 404});
     }
 
     // Calculate total partner profit
@@ -37,11 +39,11 @@ export async function GET(
       netProfit
     };
 
-    return sendSuccessResponse({ purchaseOrder: purchaseOrderWithCalculations });
+    return sendSuccessResponse({ data: purchaseOrderWithCalculations, message: 'Purchase order retrieved successfully', statusCode: 200 });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching purchase order:', error);
-    return sendErrorResponse('Failed to fetch purchase order', 500);
+    return sendErrorResponse({message: 'Failed to fetch purchase order', statusCode: 500});
   }
 }
 
@@ -51,17 +53,14 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const permissionCheck = await checkPermission(request);
-    if (!permissionCheck.success) {
-      return sendErrorResponse(permissionCheck.message, 401);
-    }
-
+    await checkPermission(request);
+    
     await connectToDatabase();
 
     const body = await request.json();
     const { updateType, ...updateData } = body;
 
-    let validatedData;
+    let validatedData: any;
     
     // Handle different types of updates
     if (updateType === 'status') {
@@ -75,23 +74,23 @@ export async function PUT(
     // Check if purchase order exists
     const existingPurchaseOrder = await PurchaseOrderModel.findById(params.id);
     if (!existingPurchaseOrder) {
-      return sendErrorResponse('Purchase order not found', 404);
+      return sendErrorResponse({message: 'Purchase order not found', statusCode: 404});
     }
 
-    // If updating bikeId, verify it exists
-    if (validatedData.bikeId && validatedData.bikeId !== existingPurchaseOrder.bikeId?.toString()) {
+    // If updating bikeId, verify it exists (only for full updates)
+    if (updateType !== 'status' && updateType !== 'payment' && validatedData.bikeId && validatedData.bikeId !== existingPurchaseOrder.bikeId?.toString()) {
       const bike = await BikeModel.findById(validatedData.bikeId);
       if (!bike) {
-        return sendErrorResponse('Bike not found', 404);
+        return sendErrorResponse({message: 'Bike not found', statusCode: 404});
       }
     }
 
-    // If updating partnersProfit, verify partners exist
-    if (validatedData.partnersProfit && validatedData.partnersProfit.length > 0) {
+    // If updating partnersProfit, verify partners exist (only for full updates)
+    if (updateType !== 'status' && updateType !== 'payment' && validatedData.partnersProfit && validatedData.partnersProfit.length > 0) {
       for (const partnerProfit of validatedData.partnersProfit) {
         const partner = await PartnerModel.findById(partnerProfit.partnerId);
         if (!partner) {
-          return sendErrorResponse(`Partner with ID ${partnerProfit.partnerId} not found`, 404);
+          return sendErrorResponse({message: `Partner with ID ${partnerProfit.partnerId} not found`, statusCode: 404});
         }
       }
     }
@@ -107,21 +106,26 @@ export async function PUT(
       updateObject,
       { new: true, runValidators: true }
     )
-      .populate('bikeId', 'make model year price')
-      .populate('partnersProfit.partnerId', 'name email phone')
+      .populate('bikeId', 'brand model year price')
+      .populate('partnersProfit.partnerId', 'name email phone address')
       .lean();
 
     return sendSuccessResponse({
       message: 'Purchase order updated successfully',
-      purchaseOrder: updatedPurchaseOrder
+      data: updatedPurchaseOrder,
+      statusCode: 200
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error updating purchase order:', error);
-    if (error.name === 'ZodError') {
-      return sendErrorResponse('Validation failed: ' + error.errors.map(e => e.message).join(', '), 400);
+    if (error instanceof ZodError) {
+      const zodErrorResponse = handleZodError(error);
+      return sendErrorResponse({
+        message: zodErrorResponse.message,
+        statusCode: zodErrorResponse.statusCode
+      });
     }
-    return sendErrorResponse('Failed to update purchase order', 500);
+    return sendErrorResponse({message: 'Failed to update purchase order', statusCode: 500});
   }
 }
 
@@ -131,21 +135,19 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const permissionCheck = await checkPermission(request);
-    if (!permissionCheck.success) {
-      return sendErrorResponse(permissionCheck.message, 401);
-    }
+     await checkPermission(request);
+
 
     await connectToDatabase();
 
     const purchaseOrder = await PurchaseOrderModel.findById(params.id);
     if (!purchaseOrder) {
-      return sendErrorResponse('Purchase order not found', 404);
+      return sendErrorResponse({message: 'Purchase order not found', statusCode: 404});
     }
 
     // Check if purchase order can be deleted (e.g., not if it's completed)
     if (purchaseOrder.status === 'completed') {
-      return sendErrorResponse('Cannot delete completed purchase order', 400);
+      return sendErrorResponse({message: 'Cannot delete completed purchase order', statusCode: 400});
     }
 
     await PurchaseOrderModel.findByIdAndDelete(params.id);
@@ -154,8 +156,8 @@ export async function DELETE(
       message: 'Purchase order deleted successfully'
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error deleting purchase order:', error);
-    return sendErrorResponse('Failed to delete purchase order', 500);
+    return sendErrorResponse({message: 'Failed to delete purchase order', statusCode: 500});
   }
 }

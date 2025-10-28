@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { PurchaseOrder } from "@/lib/models"
+
+interface PurchaseOrderWithCalculations extends PurchaseOrder {
+  totalPartnerProfit: number
+  netProfit: number
+}
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -25,7 +30,7 @@ import Image from "next/image"
 export default function PurchaseOrderDetails() {
   const router = useRouter()
   const params = useParams()
-  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder | null>(null)
+  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrderWithCalculations | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -42,7 +47,7 @@ export default function PurchaseOrderDetails() {
       
       if (response.ok) {
         const data = await response.json()
-        setPurchaseOrder(data.data.purchaseOrder)
+        setPurchaseOrder(data.data)
       } else {
         toast.error('Failed to fetch purchase order')
         router.push('/admin/purchase-orders')
@@ -224,9 +229,38 @@ export default function PurchaseOrderDetails() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              {/* Basic Buyer Information */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <span className="font-medium">NID:</span>
+                  <span className="font-medium">Name:</span>
+                  <p>{purchaseOrder.buyerName}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Phone:</span>
+                  <p>{purchaseOrder.buyerPhone}</p>
+                </div>
+                {purchaseOrder.buyerEmail && (
+                  <div>
+                    <span className="font-medium">Email:</span>
+                    <p>{purchaseOrder.buyerEmail}</p>
+                  </div>
+                )}
+                {purchaseOrder.buyerAddress && (
+                  <div>
+                    <span className="font-medium">Address:</span>
+                    <p>{purchaseOrder.buyerAddress}</p>
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Buyer Documents */}
+              <div>
+                <h4 className="font-medium mb-4">Documents</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="font-medium">NID:</span>
                   {purchaseOrder?.buyerDocs?.nid ? (
                     <div className="mt-2">
                       <Image
@@ -269,6 +303,7 @@ export default function PurchaseOrderDetails() {
                     </div>
                   ) : null}
                 </div>
+                </div>
               </div>
 
             </CardContent>
@@ -286,19 +321,19 @@ export default function PurchaseOrderDetails() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="font-medium">Model:</span>
-                  <p>{purchaseOrder.bikeId.model}</p>
+                  <p>{typeof purchaseOrder.bikeId === 'string' ? 'N/A' : purchaseOrder.bikeId.model}</p>
                 </div>
                 <div>
                   <span className="font-medium">Brand:</span>
-                  <p>{purchaseOrder.bikeId.brand}</p>
+                  <p>{typeof purchaseOrder.bikeId === 'string' ? 'N/A' : purchaseOrder.bikeId.brand}</p>
                 </div>
                 <div>
                   <span className="font-medium">Year:</span>
-                  <p>{purchaseOrder.bikeId.year}</p>
+                  <p>{typeof purchaseOrder.bikeId === 'string' ? 'N/A' : purchaseOrder.bikeId.year}</p>
                 </div>
                 <div>
-                  <span className="font-medium">Engine:</span>
-                  <p>{purchaseOrder.bikeId.specifications.engine}</p>
+                  <span className="font-medium">Price:</span>
+                  <p>Rs. {typeof purchaseOrder.bikeId === 'string' ? 'N/A' : purchaseOrder.bikeId.price?.toLocaleString()}</p>
                 </div>
               </div>
 
@@ -319,16 +354,16 @@ export default function PurchaseOrderDetails() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <span className="font-medium">Name:</span>
-                      <p>{partnerProfit.partnerId.name}</p>
+                      <p>{typeof partnerProfit.partnerId === 'string' ? 'Partner ID: ' + partnerProfit.partnerId : partnerProfit.partnerId.name}</p>
                     </div>
                     <div>
                       <span className="font-medium">Phone:</span>
-                      <p>{partnerProfit.partnerId.phone}</p>
+                      <p>{typeof partnerProfit.partnerId === 'string' ? 'N/A' : partnerProfit.partnerId.phone}</p>
                     </div>
                   </div>
                   <div>
                     <span className="font-medium">Address:</span>
-                    <p>{partnerProfit.partnerId.address}</p>
+                    <p>{typeof partnerProfit.partnerId === 'string' ? 'N/A' : partnerProfit.partnerId.address}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -337,15 +372,9 @@ export default function PurchaseOrderDetails() {
                     </div>
                     <div>
                       <span className="font-medium">Percentage:</span>
-                      <p>{partnerProfit.percentage}%</p>
+                      <p>{partnerProfit.sharePercentage}%</p>
                     </div>
                   </div>
-                  {partnerProfit.notes && (
-                    <div>
-                      <span className="font-medium">Notes:</span>
-                      <p>{partnerProfit.notes}</p>
-                    </div>
-                  )}
                 </div>
               ))}
             </CardContent>
@@ -376,8 +405,8 @@ export default function PurchaseOrderDetails() {
                   <h4 className="font-medium">Partner Breakdown:</h4>
                   {purchaseOrder.partnersProfit?.map((partnerProfit, index) => (
                     <div key={index} className="flex justify-between text-sm">
-                      <span>{partnerProfit.partnerId.name}:</span>
-                      <span>Rs. {partnerProfit.profit.toLocaleString()} ({partnerProfit.percentage}%)</span>
+                      <span>{typeof partnerProfit.partnerId === 'string' ? 'Partner' : partnerProfit.partnerId.name}:</span>
+                      <span>Rs. {partnerProfit.profit.toLocaleString()} ({partnerProfit.sharePercentage}%)</span>
                     </div>
                   ))}
                 </div>

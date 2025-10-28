@@ -139,7 +139,10 @@ export async function POST(request: NextRequest) {
       for (const partnerProfit of validatedData.partnersProfit) {
         const partner = await PartnerModel.findById(partnerProfit.partnerId);
         if (!partner) {
-          return sendErrorResponse(`Partner with ID ${partnerProfit.partnerId} not found`, 404);
+          return sendErrorResponse({
+            statusCode: 404,
+            message: `Partner with ID ${partnerProfit.partnerId} not found`
+          });
         }
       }
     }
@@ -165,12 +168,12 @@ export async function POST(request: NextRequest) {
       data: {...populatedPurchaseOrder}
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error creating purchase order:', error);
-    if ((error.name) === 'ZodError') {
+    if (error instanceof Error && error.name === 'ZodError') {
       return sendErrorResponse({
         statusCode: 400,
-        message: 'Validation failed: ' + error.errors.map((e: any) => e.message).join(', '),
+        message: 'Validation failed: ' + (error as any).errors.map((e: any) => e.message).join(', '),
       });
     }
     return sendErrorResponse({

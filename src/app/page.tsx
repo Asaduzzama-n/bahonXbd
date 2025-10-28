@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from "next/link"
 import { ArrowRight, Award, CheckCircle, Clock, Star, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,119 +12,32 @@ import { QuickSearch } from "@/components/quick-search"
 import { FeaturedBikes } from "@/components/featured-bikes"
 import { RecentlySold } from "@/components/recently-sold"
 
-// Mock data - in real app this would come from database
+// Mock data for platform statistics (this would come from a separate API in a real app)
 const platformStats = {
-  totalBikesSold: 1247,
-  happyClients: 1180,
-  yearsInBusiness: 8,
+  totalBikesSold: 890,
+  happyClients: 340,
+  yearsInBusiness: 5,
   averageRating: 4.8
 }
 
-const featuredBikes = [
-  {
-    id: 1,
-    brand: "Yamaha",
-    model: "R15 V4",
-    year: 2023,
-    price: "৳4,85,000",
-    image: "/api/placeholder/400/300",
-    mileage: "15,000 km",
-    location: "Dhaka, Bangladesh"
-  },
-  {
-    id: 2,
-    brand: "Honda",
-    model: "CBR 150R",
-    year: 2022,
-    price: "৳4,20,000",
-    image: "/api/placeholder/400/300",
-    mileage: "22,000 km",
-    location: "Chittagong, Bangladesh"
-  },
-  {
-    id: 3,
-    brand: "Suzuki",
-    model: "Gixxer SF",
-    year: 2023,
-    price: "৳3,95,000",
-    image: "/api/placeholder/400/300",
-    mileage: "8,500 km",
-    location: "Sylhet, Bangladesh"
-  },
-  {
-    id: 4,
-    brand: "KTM",
-    model: "Duke 390",
-    year: 2023,
-    price: "৳6,50,000",
-    image: "/api/placeholder/400/300",
-    mileage: "12,000 km",
-    location: "Dhaka, Bangladesh"
-  },
-  {
-    id: 5,
-    brand: "Bajaj",
-    model: "Dominar 400",
-    year: 2022,
-    price: "৳3,80,000",
-    image: "/api/placeholder/400/300",
-    mileage: "18,000 km",
-    location: "Rajshahi, Bangladesh"
+// API functions
+const fetchFeaturedBikes = async () => {
+  const response = await fetch('/api/public/bikes/featured?limit=6')
+  if (!response.ok) {
+    throw new Error('Failed to fetch featured bikes')
   }
-]
+  return response.json()
+}
 
-const soldBikes = [
-  { 
-    id: 1, 
-    brand: "KTM", 
-    model: "Duke 200", 
-    year: 2023,
-    price: "৳3,80,000", 
-    image: "/api/placeholder/400/300",
-    soldDate: "2024-01-15",
-    location: "Dhaka, Bangladesh"
-  },
-  { 
-    id: 2, 
-    brand: "Bajaj", 
-    model: "Pulsar NS200", 
-    year: 2022,
-    price: "৳2,95,000", 
-    image: "/api/placeholder/400/300",
-    soldDate: "2024-01-10",
-    location: "Chittagong, Bangladesh"
-  },
-  { 
-    id: 3, 
-    brand: "TVS", 
-    model: "Apache RTR 200", 
-    year: 2023,
-    price: "৳2,85,000", 
-    image: "/api/placeholder/400/300",
-    soldDate: "2024-01-08",
-    location: "Sylhet, Bangladesh"
-  },
-  { 
-    id: 4, 
-    brand: "Honda", 
-    model: "CB Shine", 
-    year: 2022,
-    price: "৳1,85,000", 
-    image: "/api/placeholder/400/300",
-    soldDate: "2024-01-05",
-    location: "Rajshahi, Bangladesh"
-  },
-  { 
-    id: 5, 
-    brand: "Yamaha", 
-    model: "FZ-S", 
-    year: 2023,
-    price: "৳2,45,000", 
-    image: "/api/placeholder/400/300",
-    soldDate: "2024-01-03",
-    location: "Khulna, Bangladesh"
+const fetchSoldBikes = async () => {
+  const response = await fetch('/api/public/bikes/sold?limit=6')
+  if (!response.ok) {
+    throw new Error('Failed to fetch sold bikes')
   }
-]
+  return response.json()
+}
+
+
 
 const customerReviews = [
   {
@@ -145,6 +61,34 @@ const customerReviews = [
 ]
 
 export default function Home() {
+  const [featuredBikesData, setFeaturedBikesData] = useState([])
+  const [soldBikesData, setSoldBikesData] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        const [featuredResponse, soldResponse] = await Promise.all([
+          fetchFeaturedBikes(),
+          fetchSoldBikes()
+        ])
+        
+        setFeaturedBikesData(featuredResponse.data || [])
+        setSoldBikesData(soldResponse.data || [])
+      } catch (error) {
+        console.error('Error loading data:', error)
+        // Set empty arrays on error
+        setFeaturedBikesData([])
+        setSoldBikesData([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [])
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -156,10 +100,10 @@ export default function Home() {
       <QuickSearch />
 
       {/* Featured Bikes */}
-      <FeaturedBikes featuredBikes={featuredBikes} />
+      <FeaturedBikes featuredBikes={featuredBikesData} loading={loading} />
 
       {/* Recently Sold */}
-      <RecentlySold soldBikes={soldBikes} />
+      <RecentlySold soldBikes={soldBikesData} loading={loading} />
 
       {/* Customer Reviews */}
       <section className="py-16">

@@ -7,21 +7,23 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
 interface Bike {
-  id: number
+  _id: string
+  title?: string
   brand: string
   model: string
   year: number
-  price: string
-  image: string
+  price: number
+  images: string[]
   mileage: string
   location: string
 }
 
 interface FeaturedBikesProps {
   featuredBikes: Bike[]
+  loading?: boolean
 }
 
-export function FeaturedBikes({ featuredBikes }: FeaturedBikesProps) {
+export function FeaturedBikes({ featuredBikes, loading = false }: FeaturedBikesProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const itemsPerView = 3
   const maxIndex = Math.max(0, featuredBikes.length - itemsPerView)
@@ -71,53 +73,78 @@ export function FeaturedBikes({ featuredBikes }: FeaturedBikesProps) {
         </div>
         
         <div className="relative overflow-hidden">
-          <div 
-            className="flex transition-transform duration-300 ease-in-out gap-6"
-            style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}
-          >
-            {featuredBikes.map((bike) => (
-              <div key={bike.id} className="flex-shrink-0" style={{ width: `calc(${100 / itemsPerView}% - 1rem)` }}>
-                <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-card overflow-hidden h-full">
-                  <div className="relative overflow-hidden">
-                    <img 
-                      src={bike.image} 
-                      alt={`${bike.brand} ${bike.model}`}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
-                      Featured
-                    </Badge>
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-                        {bike.brand} {bike.model}
-                      </h3>
-                      <span className="text-sm text-muted-foreground">{bike.year}</span>
+          {loading ? (
+            <div className="flex gap-6">
+              {[...Array(itemsPerView)].map((_, index) => (
+                <div key={index} className="flex-shrink-0" style={{ width: `calc(${100 / itemsPerView}% - 1rem)` }}>
+                  <Card className="border-border bg-card overflow-hidden h-full">
+                    <div className="relative overflow-hidden">
+                      <div className="w-full h-48 bg-muted animate-pulse" />
                     </div>
-                    
-                    <div className="space-y-1 mb-4">
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <MapPin className="h-3 w-3" />
-                        <span>{bike.location}</span>
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div className="h-4 bg-muted animate-pulse rounded" />
+                        <div className="h-3 bg-muted animate-pulse rounded w-3/4" />
+                        <div className="h-3 bg-muted animate-pulse rounded w-1/2" />
+                        <div className="flex justify-between items-center">
+                          <div className="h-6 bg-muted animate-pulse rounded w-20" />
+                          <div className="h-8 bg-muted animate-pulse rounded w-24" />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Gauge className="h-3 w-3" />
-                        <span>{bike.mileage}</span>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div 
+              className="flex transition-transform duration-300 ease-in-out gap-6"
+              style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}
+            >
+              {featuredBikes.map((bike) => (
+                <div key={bike._id} className="flex-shrink-0" style={{ width: `calc(${100 / itemsPerView}% - 1rem)` }}>
+                  <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-card overflow-hidden h-full">
+                    <div className="relative overflow-hidden">
+                      <img 
+                        src={bike.images?.[0] || '/placeholder-bike.jpg'} 
+                        alt={bike.title || `${bike.brand} ${bike.model}`}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
+                        Featured
+                      </Badge>
+                    </div>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
+                          {bike.title || `${bike.brand} ${bike.model}`}
+                        </h3>
+                        <span className="text-sm text-muted-foreground">{bike.year}</span>
                       </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-xl font-bold text-primary">{bike.price}</span>
-                      <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                        View Details
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
+                      
+                      <div className="space-y-1 mb-4">
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          <span>{bike.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Gauge className="h-3 w-3" />
+                          <span>{bike.mileage}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-xl font-bold text-primary">৳{bike.price?.toLocaleString()}</span>
+                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                          View Details
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

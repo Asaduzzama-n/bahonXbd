@@ -13,225 +13,33 @@ import { Bike } from '@/lib/models'
 import Image from 'next/image'
 import Link from 'next/link'
 
-// Mock data for bike listings
-const mockBikes: Bike[] = [
-  {
-    _id: '1',
-    title: 'Yamaha R15 V4',
-    brand: 'Yamaha',
-    model: 'R15 V4',
-    year: 2023,
-    price: 285000,
-    mileage: 2500,
-    condition: 'excellent',
-    location: 'Dhaka',
-    description: 'Well-maintained Yamaha R15 V4 with all original parts and service records.',
-    images: ['/api/placeholder/400/300'],
-    features: ['ABS', 'LED Headlight', 'Digital Display', 'Slipper Clutch'],
-    specifications: {
-      engine: 155,
-      fuelType: 'petrol',
-      transmission: 'manual',
-      color: 'Racing Blue',
-      maxPower: '18.6 PS',
-      maxTorque: '14.1 Nm',
-      fuelTankCapacity: '11 L',
-      weight: '142 kg'
-    },
-    serviceHistory: [],
-    sellerId: 'seller1',
-    sellerName: 'John Doe',
-    sellerPhone: '+8801712345678',
-    sellerEmail: 'john@example.com',
-    status: 'available',
-    isVerified: true,
-    isFeatured: true,
-    isActive: true,
-    views: 125,
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-15')
-  },
-  {
-    _id: '2',
-    title: 'Honda CB Shine SP',
-    brand: 'Honda',
-    model: 'CB Shine SP',
-    year: 2022,
-    price: 95000,
-    mileage: 8500,
-    condition: 'good',
-    location: 'Chittagong',
-    description: 'Reliable Honda CB Shine SP, perfect for daily commuting.',
-    images: ['/api/placeholder/400/300'],
-    features: ['Electric Start', 'Tubeless Tyres', 'LED Tail Light'],
-    specifications: {
-      engine: 125,
-      fuelType: 'petrol',
-      transmission: 'manual',
-      color: 'Black',
-      maxPower: '10.7 PS',
-      maxTorque: '10.9 Nm',
-      fuelTankCapacity: '10.5 L',
-      weight: '123 kg'
-    },
-    serviceHistory: [],
-    sellerId: 'seller2',
-    sellerName: 'Jane Smith',
-    sellerPhone: '+8801812345678',
-    sellerEmail: 'jane@example.com',
-    status: 'available',
-    isVerified: true,
-    isFeatured: false,
-    isActive: true,
-    views: 89,
-    createdAt: new Date('2024-01-10'),
-    updatedAt: new Date('2024-01-10')
-  },
-  {
-    _id: '3',
-    title: 'Suzuki Gixxer SF 250',
-    brand: 'Suzuki',
-    model: 'Gixxer SF 250',
-    year: 2023,
-    price: 350000,
-    mileage: 1200,
-    condition: 'excellent',
-    location: 'Sylhet',
-    description: 'Almost new Suzuki Gixxer SF 250 with minimal usage.',
-    images: ['/api/placeholder/400/300'],
-    features: ['ABS', 'LED Headlight', 'Digital Display', 'USD Forks'],
-    specifications: {
-      engine: 249,
-      fuelType: 'petrol',
-      transmission: 'manual',
-      color: 'Metallic Triton Blue',
-      maxPower: '26.5 PS',
-      maxTorque: '22.6 Nm',
-      fuelTankCapacity: '12 L',
-      weight: '158 kg'
-    },
-    serviceHistory: [],
-    sellerId: 'seller3',
-    sellerName: 'Mike Johnson',
-    sellerPhone: '+8801912345678',
-    sellerEmail: 'mike@example.com',
-    status: 'available',
-    isVerified: true,
-    isFeatured: true,
-    isActive: true,
-    views: 203,
-    createdAt: new Date('2024-01-20'),
-    updatedAt: new Date('2024-01-20')
-  },
-  {
-    _id: '4',
-    title: 'TVS Apache RTR 160 4V',
-    brand: 'TVS',
-    model: 'Apache RTR 160 4V',
-    year: 2021,
-    price: 145000,
-    mileage: 15000,
-    condition: 'good',
-    location: 'Rajshahi',
-    description: 'Sporty TVS Apache with good performance and fuel efficiency.',
-    images: ['/api/placeholder/400/300'],
-    features: ['ABS', 'LED DRL', 'Digital Display', 'Race Tuned Suspension'],
-    specifications: {
-      engine: 159,
-      fuelType: 'petrol',
-      transmission: 'manual',
-      color: 'Gloss Black',
-      maxPower: '17.63 PS',
-      maxTorque: '14.73 Nm',
-      fuelTankCapacity: '12 L',
-      weight: '149 kg'
-    },
-    serviceHistory: [],
-    sellerId: 'seller4',
-    sellerName: 'Sarah Wilson',
-    sellerPhone: '+8801612345678',
-    sellerEmail: 'sarah@example.com',
-    status: 'available',
-    isVerified: false,
-    isFeatured: false,
-    isActive: true,
-    views: 67,
-    createdAt: new Date('2024-01-05'),
-    updatedAt: new Date('2024-01-05')
-  },
-  {
-    _id: '5',
-    title: 'Hero Splendor Plus',
-    brand: 'Hero',
-    model: 'Splendor Plus',
-    year: 2020,
-    price: 65000,
-    mileage: 25000,
-    condition: 'fair',
-    location: 'Khulna',
-    description: 'Economical Hero Splendor Plus, great for budget-conscious buyers.',
-    images: ['/api/placeholder/400/300'],
-    features: ['Electric Start', 'Kick Start', 'Fuel Gauge'],
-    specifications: {
-      engine: '97',
-      fuelType: 'petrol',
-      transmission: 'manual',
-      color: 'Red',
-      maxPower: '8.02 PS',
-      maxTorque: '8.05 Nm',
-      fuelTankCapacity: '9.8 L',
-      weight: '109 kg'
-    },
-    serviceHistory: [],
-    sellerId: 'seller5',
-    sellerName: 'David Brown',
-    sellerPhone: '+8801512345678',
-    sellerEmail: 'david@example.com',
-    status: 'available',
-    isVerified: true,
-    isFeatured: false,
-    isActive: true,
-    views: 45,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01')
-  },
-  {
-    _id: '6',
-    title: 'Bajaj Pulsar NS200',
-    brand: 'Bajaj',
-    model: 'Pulsar NS200',
-    year: 2022,
-    price: 185000,
-    mileage: 12000,
-    condition: 'good',
-    location: 'Barisal',
-    description: 'Powerful Bajaj Pulsar NS200 with excellent build quality.',
-    images: ['/api/placeholder/400/300'],
-    features: ['ABS', 'LED Headlight', 'Digital Display', 'Perimeter Frame'],
-    specifications: {
-      engine: '199',
-      fuelType: 'petrol',
-      transmission: 'manual',
-      color: 'Burnt Orange',
-      maxPower: '24.13 PS',
-      maxTorque: '18.5 Nm',
-      fuelTankCapacity: '12 L',
-      weight: '154 kg'
-    },
-    serviceHistory: [],
-    sellerId: 'seller6',
-    sellerName: 'Lisa Garcia',
-    sellerPhone: '+8801412345678',
-    sellerEmail: 'lisa@example.com',
-    status: 'available',
-    isVerified: true,
-    isFeatured: false,
-    isActive: true,
-    views: 112,
-    createdAt: new Date('2024-01-12'),
-    updatedAt: new Date('2024-01-12')
+// API function to fetch bikes
+const fetchBikes = async (params: {
+  page?: number
+  limit?: number
+  brand?: string
+  condition?: string
+  location?: string
+  minPrice?: number
+  maxPrice?: number
+  search?: string
+  sortBy?: string
+  sortOrder?: string
+}) => {
+  const searchParams = new URLSearchParams()
+  
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== '' && value !== 'All Brands' && value !== 'All Conditions' && value !== 'All Locations') {
+      searchParams.append(key, value.toString())
+    }
+  })
+
+  const response = await fetch(`/api/public/bikes?${searchParams.toString()}`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch bikes')
   }
-]
+  return response.json()
+}
 
 const brands = ['All Brands', 'Yamaha', 'Honda', 'Suzuki', 'TVS', 'Hero', 'Bajaj']
 const conditions = ['All Conditions', 'excellent', 'good', 'fair']
@@ -239,53 +47,91 @@ const locations = ['All Locations', 'Dhaka', 'Chittagong', 'Sylhet', 'Rajshahi',
 const sortOptions = ['Latest', 'Price: Low to High', 'Price: High to Low', 'Mileage: Low to High', 'Year: Newest First']
 
 export default function ListingsPage() {
-  const [bikes, setBikes] = useState<Bike[]>(mockBikes)
-  const [filteredBikes, setFilteredBikes] = useState<Bike[]>(mockBikes)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedBrand, setSelectedBrand] = useState('All Brands')
-  const [selectedCondition, setSelectedCondition] = useState('All Conditions')
-  const [selectedLocation, setSelectedLocation] = useState('All Locations')
-  const [priceRange, setPriceRange] = useState({ min: '', max: '' })
-  const [sortBy, setSortBy] = useState('Latest')
+  const [bikes, setBikes] = useState<Bike[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalBikes, setTotalBikes] = useState(0)
+  const [filters, setFilters] = useState({
+    brand: 'All Brands',
+    condition: 'All Conditions',
+    location: 'All Locations',
+    minPrice: '',
+    maxPrice: '',
+    search: ''
+  })
+  const [sortBy, setSortBy] = useState('newest')
   const [showFilters, setShowFilters] = useState(false)
 
-  // Filter and sort bikes
-  useEffect(() => {
-    let filtered = bikes.filter(bike => {
-      const matchesSearch = bike.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           bike.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           bike.model.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesBrand = selectedBrand === 'All Brands' || bike.brand === selectedBrand
-      const matchesCondition = selectedCondition === 'All Conditions' || bike.condition === selectedCondition
-      const matchesLocation = selectedLocation === 'All Locations' || bike.location === selectedLocation
-      
-      const matchesPrice = (!priceRange.min || bike.price >= parseInt(priceRange.min)) &&
-                          (!priceRange.max || bike.price <= parseInt(priceRange.max))
-      
-      return matchesSearch && matchesBrand && matchesCondition && matchesLocation && matchesPrice
-    })
+  const bikesPerPage = 12
 
-    // Sort bikes
-    switch (sortBy) {
-      case 'Price: Low to High':
-        filtered.sort((a, b) => a.price - b.price)
-        break
-      case 'Price: High to Low':
-        filtered.sort((a, b) => b.price - a.price)
-        break
-      case 'Mileage: Low to High':
-        filtered.sort((a, b) => a.mileage - b.mileage)
-        break
-      case 'Year: Newest First':
-        filtered.sort((a, b) => b.year - a.year)
-        break
-      default: // Latest
-        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  // Filter handlers
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }))
+    setCurrentPage(1) // Reset to first page when filters change
+  }
+
+  const handleBrandFilter = (brand: string) => {
+    handleFilterChange('brand', brand)
+  }
+
+  const handleConditionFilter = (condition: string) => {
+    handleFilterChange('condition', condition)
+  }
+
+  const handleLocationFilter = (location: string) => {
+    handleFilterChange('location', location)
+  }
+
+  const handleSort = (sortOption: string) => {
+    setSortBy(sortOption)
+    setCurrentPage(1)
+  }
+
+  // Fetch bikes data from API
+  useEffect(() => {
+    const loadBikes = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        const sortMapping: { [key: string]: { sortBy: string; sortOrder: string } } = {
+          'Latest': { sortBy: 'createdAt', sortOrder: 'desc' },
+          'Price: Low to High': { sortBy: 'price', sortOrder: 'asc' },
+          'Price: High to Low': { sortBy: 'price', sortOrder: 'desc' },
+          'Mileage: Low to High': { sortBy: 'mileage', sortOrder: 'asc' },
+          'Year: Newest First': { sortBy: 'year', sortOrder: 'desc' }
+        }
+
+        const sort = sortMapping[sortBy] || sortMapping['Latest']
+        
+        const params = {
+          page: currentPage,
+          limit: bikesPerPage,
+          brand: filters.brand !== 'All Brands' ? filters.brand : undefined,
+          condition: filters.condition !== 'All Conditions' ? filters.condition.toLowerCase() : undefined,
+          location: filters.location !== 'All Locations' ? filters.location : undefined,
+          minPrice: filters.minPrice ? parseInt(filters.minPrice) : undefined,
+          maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
+          search: filters.search || undefined,
+          sortBy: sort.sortBy,
+          sortOrder: sort.sortOrder
+        }
+
+        const data = await fetchBikes(params)
+        setBikes(data.data)
+        setTotalPages(data.totalPages)
+        setTotalBikes(data.total)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch bikes')
+      } finally {
+        setLoading(false)
+      }
     }
 
-    setFilteredBikes(filtered)
-  }, [bikes, searchTerm, selectedBrand, selectedCondition, selectedLocation, priceRange, sortBy])
+    loadBikes()
+  }, [currentPage, filters, sortBy])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-BD', {
@@ -324,8 +170,8 @@ export default function ListingsPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Search bikes by brand, model, or title..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
               className="pl-10 h-12"
             />
           </div>
@@ -343,9 +189,9 @@ export default function ListingsPage() {
             
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground">
-                {filteredBikes.length} bikes found
+                {totalBikes} bikes found
               </span>
-              <Select value={sortBy} onValueChange={setSortBy}>
+              <Select value={sortBy} onValueChange={handleSort}>
                 <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>
@@ -364,7 +210,7 @@ export default function ListingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Brand</label>
-                  <Select value={selectedBrand} onValueChange={setSelectedBrand}>
+                  <Select value={filters.brand} onValueChange={handleBrandFilter}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -378,7 +224,7 @@ export default function ListingsPage() {
                 
                 <div>
                   <label className="text-sm font-medium mb-2 block">Condition</label>
-                  <Select value={selectedCondition} onValueChange={setSelectedCondition}>
+                  <Select value={filters.condition} onValueChange={handleConditionFilter}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -394,7 +240,7 @@ export default function ListingsPage() {
                 
                 <div>
                   <label className="text-sm font-medium mb-2 block">Location</label>
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                  <Select value={filters.location} onValueChange={handleLocationFilter}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -411,8 +257,8 @@ export default function ListingsPage() {
                   <Input
                     type="number"
                     placeholder="0"
-                    value={priceRange.min}
-                    onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                    value={filters.minPrice}
+                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
                   />
                 </div>
                 
@@ -421,8 +267,8 @@ export default function ListingsPage() {
                   <Input
                     type="number"
                     placeholder="1000000"
-                    value={priceRange.max}
-                    onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+                    value={filters.maxPrice}
+                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
                   />
                 </div>
               </div>
@@ -431,12 +277,16 @@ export default function ListingsPage() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    setSearchTerm('')
-                    setSelectedBrand('All Brands')
-                    setSelectedCondition('All Conditions')
-                    setSelectedLocation('All Locations')
-                    setPriceRange({ min: '', max: '' })
+                    setFilters({
+                      brand: 'All Brands',
+                      condition: 'All Conditions',
+                      location: 'All Locations',
+                      minPrice: '',
+                      maxPrice: '',
+                      search: ''
+                    })
                     setSortBy('Latest')
+                    setCurrentPage(1)
                   }}
                 >
                   Clear Filters
@@ -446,9 +296,30 @@ export default function ListingsPage() {
           )}
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading bikes...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h3 className="text-xl font-semibold mb-2">Error loading bikes</h3>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </div>
+        )}
+
         {/* Bike Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBikes.map((bike) => (
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {bikes.map((bike) => (
             <Card key={bike._id} className="bike-card overflow-hidden flex flex-col h-full">
               <div className="relative">
                 <Image
@@ -463,11 +334,7 @@ export default function ListingsPage() {
                     Featured
                   </Badge>
                 )}
-                {bike.isVerified && (
-                  <Badge className="absolute top-2 right-2 bg-brand-orange text-white">
-                    Verified
-                  </Badge>
-                )}
+
                 <div className="absolute bottom-2 right-2 flex gap-1">
                   <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
                     <Heart className="h-4 w-4" />
@@ -499,12 +366,12 @@ export default function ListingsPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <Fuel className="h-4 w-4" />
-                    {bike.specifications.engine}cc
+                    {bike.brand} Engine
                   </div>
-                  <div className="flex items-center gap-1">
+                  {/* <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    {bike.location}
-                  </div>
+                    {bike.}
+                  </div> */}
                 </div>
                 
                 <p className="text-sm text-muted-foreground line-clamp-2 flex-1">
@@ -522,10 +389,48 @@ export default function ListingsPage() {
               </CardContent>
             </Card>
           ))}
-        </div>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!loading && !error && totalPages > 1 && (
+          <div className="mt-8 flex justify-center items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            
+            <div className="flex gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const page = i + 1
+                return (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    onClick={() => setCurrentPage(page)}
+                    className={currentPage === page ? "bg-brand-orange hover-brand-orange" : ""}
+                  >
+                    {page}
+                  </Button>
+                )
+              })}
+            </div>
+            
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        )}
 
         {/* No Results */}
-        {filteredBikes.length === 0 && (
+        {!loading && !error && bikes.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold mb-2">No bikes found</h3>
@@ -534,11 +439,16 @@ export default function ListingsPage() {
             </p>
             <Button
               onClick={() => {
-                setSearchTerm('')
-                setSelectedBrand('All Brands')
-                setSelectedCondition('All Conditions')
-                setSelectedLocation('All Locations')
-                setPriceRange({ min: '', max: '' })
+                setFilters({
+                  brand: 'All Brands',
+                  condition: 'All Conditions',
+                  location: 'All Locations',
+                  minPrice: '',
+                  maxPrice: '',
+                  search: ''
+                })
+                setSortBy('Latest')
+                setCurrentPage(1)
               }}
             >
               Clear All Filters

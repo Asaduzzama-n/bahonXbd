@@ -104,7 +104,7 @@ export default function PurchaseOrdersManagement() {
         setStats({
           total: data.data.overview.totalPurchaseOrders,
           pending: data.data.overview.statusDistribution.pending || 0,
-          completed: data.data.overview.statusDistribution.completed || 0,
+          confirmed: data.data.overview.statusDistribution.confirmed || 0,
           totalRevenue: data.data.financial.overall.totalRevenue,
           totalProfit: data.data.financial.overall.totalProfit,
           avgProfitMargin: data.data.financial.overall.profitMargin
@@ -218,15 +218,15 @@ export default function PurchaseOrdersManagement() {
       },
     },
     {
-      accessorKey: "buyerDocs",
+      accessorKey: "buyerName",
       header: "Buyer",
       cell: ({ row }) => {
-        const buyer = row.original.buyerDocs
+        const purchaseOrder = row.original
         return (
           <div className="max-w-[150px]">
-            <div className="font-medium truncate">{buyer?.name}</div>
+            <div className="font-medium truncate">{purchaseOrder.buyerName}</div>
             <div className="text-sm text-muted-foreground truncate">
-              {buyer?.phone}
+              {purchaseOrder.buyerPhone}
             </div>
           </div>
         )
@@ -444,7 +444,7 @@ export default function PurchaseOrdersManagement() {
           <AdminDataTable
             columns={columns}
             data={purchaseOrders}
-            loading={loading}
+            // loading={loading}
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}

@@ -12,37 +12,13 @@ import { Bike } from '@/lib/models'
 import Image from 'next/image'
 import Link from 'next/link'
 
-// Mock bike data - in real app this would come from API
-const mockBike: Bike = {
-  _id: '1',
-  title: 'Yamaha R15 V4',
-  brand: 'Yamaha',
-  model: 'R15 V4',
-  year: 2023,
-  price: 285000,
-  mileage: 2500,
-  condition: 'excellent',
-  description: 'Well-maintained Yamaha R15 V4 with all original parts and service records. This bike has been garage-kept and serviced regularly. Perfect for both city commuting and weekend rides. All documents are clear and ready for transfer.',
-  images: ['/api/placeholder/800/600', '/api/placeholder/800/600', '/api/placeholder/800/600'],
-  features: ['ABS', 'LED Headlight', 'Digital Display', 'Slipper Clutch', 'USD Forks', 'Dual Channel ABS'],
-  specifications: {
-    engine: '155 cc',
-    fuelType: 'petrol',
-    transmission: 'manual',
-    color: 'Racing Blue',
-    maxPower: '18.6 PS',
-    maxTorque: '14.1 Nm',
-    fuelTankCapacity: '11 L',
-    weight: '142 kg'
-  },
-  serviceHistory: [],
-
-  status: 'available',
-  isFeatured: true,
-  isActive: true,
-  views: 125,
-  createdAt: new Date('2024-01-15'),
-  updatedAt: new Date('2024-01-15')
+// API function to fetch bike details
+const fetchBikeDetails = async (id: string) => {
+  const response = await fetch(`/api/public/bikes/${id}`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch bike details')
+  }
+  return response.json()
 }
 
 export default function BikeDetailsPage() {
@@ -52,11 +28,22 @@ export default function BikeDetailsPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setBike(mockBike)
-      setIsLoading(false)
-    }, 500)
+    const loadBike = async () => {
+      try {
+        setIsLoading(true)
+        const bikeData = await fetchBikeDetails(params.id as string)
+        setBike(bikeData)
+      } catch (error) {
+        console.error('Error loading bike:', error)
+        setBike(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (params.id) {
+      loadBike()
+    }
   }, [params.id])
 
   const formatPrice = (price: number) => {
@@ -194,10 +181,10 @@ export default function BikeDetailsPage() {
               </div>
             </div>
 
-            {/* Key Specifications */}
+            {/* Key Details */}
             <Card>
               <CardHeader>
-                <CardTitle>Key Specifications</CardTitle>
+                <CardTitle>Key Details</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
@@ -211,16 +198,11 @@ export default function BikeDetailsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Fuel className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Engine: {bike.specifications.engineCapacity}cc</span>
+                    <span className="text-sm">Brand: {bike.brand}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Transmission: {bike.specifications.transmission}</span>
-                  </div>
-                
-                  <div className="flex items-center gap-2">
-                    <span className="w-4 h-4 rounded-full border-2 border-muted-foreground"></span>
-                    <span className="text-sm">Color: {bike.specifications.color}</span>
+                    <span className="text-sm">Model: {bike.model}</span>
                   </div>
                 </div>
               </CardContent>
