@@ -215,7 +215,7 @@ const publicInfoSchema = new mongoose.Schema<PublicInfo>({
 
 // Create indexes
 userSchema.index({ email: 1 })
-bikeSchema.index({ bikeNumber: 1 })
+// bikeSchema.index({ bikeNumber: 1 }) - Already unique in schema
 bikeSchema.index({ brand: 1, model: 1 })
 bikeSchema.index({ price: 1 })
 bikeSchema.index({ status: 1 })

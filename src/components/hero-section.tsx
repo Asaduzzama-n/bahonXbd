@@ -28,7 +28,7 @@ export function HeroSection({ platformStats }: HeroSectionProps) {
           <div className="flex justify-center animate-fade-in">
             <Badge className="bg-primary/10 text-primary border-primary/20 px-6 py-3 text-sm font-semibold hover:bg-primary/20 transition-colors">
               <Award className="h-4 w-4 mr-2" />
-              Bangladesh's Most Trusted Bike Dealer
+              Bangladesh&apos;s Most Trusted Bike Dealer
             </Badge>
           </div>
 
