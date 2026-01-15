@@ -13,7 +13,7 @@ import {
   YAxis,
   Tooltip,
 } from "recharts"
-import { Bike, Users, ShoppingCart, Plus, Eye, DollarSign, UserCheck, BarChart3 } from "lucide-react"
+import { Bike, ShoppingCart, DollarSign, Package } from "lucide-react"
 import { PlatformStats } from "@/lib/models"
 
 export default function AdminDashboard() {
@@ -66,12 +66,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const quickActions = [
-    { title: "Add New Bike", description: "List a new bike for sale", icon: Plus, href: "/admin/bikes/new", color: "bg-blue-500" },
-    { title: "View Orders", description: "Manage pending orders", icon: Eye, href: "/admin/orders", color: "bg-green-500" },
-    { title: "User Management", description: "Manage user accounts", icon: UserCheck, href: "/admin/users", color: "bg-purple-500" },
-    { title: "Analytics", description: "View detailed reports", icon: BarChart3, href: "/admin/analytics", color: "bg-orange-500" },
-  ]
+
 
   if (loading) {
     return (
@@ -91,12 +86,7 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">Welcome back! Here’s your current platform overview.</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button key="quick-add">
-            <Plus className="mr-2 h-4 w-4" />
-            Quick Add
-          </Button>
-        </div>
+
       </div>
 
       {/* Stats Cards */}
@@ -125,23 +115,23 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Orders</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Sells</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.pendingOrders || 0}</div>
-            <p className="text-xs text-muted-foreground">Orders currently pending</p>
+            <div className="text-2xl font-bold">{stats?.confirmedOrders || 0}</div>
+            <p className="text-xs text-muted-foreground">Confirmed purchase orders</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Remaining Bikes</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
-            <p className="text-xs text-muted-foreground">Admin-only access</p>
+            <div className="text-2xl font-bold">{stats?.availableBikes || 0}</div>
+            <p className="text-xs text-muted-foreground">Available for sale</p>
           </CardContent>
         </Card>
       </div>
@@ -196,28 +186,7 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common administrative tasks</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {quickActions.map((action, index) => (
-            <Button key={index} variant="outline" className="w-full justify-start h-auto p-4" asChild>
-              <a href={action.href}>
-                <div className={`mr-3 rounded-lg p-2 ${action.color}`}>
-                  <action.icon className="h-4 w-4 text-white" />
-                </div>
-                <div className="text-left">
-                  <div className="font-medium">{action.title}</div>
-                  <div className="text-sm text-muted-foreground">{action.description}</div>
-                </div>
-              </a>
-            </Button>
-          ))}
-        </CardContent>
-      </Card>
+
     </div>
   )
 }

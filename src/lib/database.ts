@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import { User, Bike, PurchaseOrder, BikeWashLocation, Expense, Partner, PublicInfo } from './models'
 import { string } from 'zod'
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bike-platform'
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bahonXbd'
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local')
@@ -82,13 +82,15 @@ const userSchema = new mongoose.Schema<User>({
 
 // Bike Schema
 const bikeSchema = new mongoose.Schema<Bike>({
+  bikeNumber: { type: String, required: true, unique: true },
+  chassisNumber: { type: String },
   title: { type: String, required: true },
   description: { type: String, required: true },
   brand: { type: String, required: true },
   model: { type: String, required: true },
-  year: { type: Number, required: true },
+  year: { type: Number },
   condition: { type: String, enum: ['excellent', 'good', 'fair', 'poor'], required: true },
-  mileage: { type: Number, required: true },
+  mileage: { type: Number },
   price: { type: Number, required: true },
   purchasePrice: { type: Number, required: true },
   purchaseDate: { type: Date, required: true },
@@ -98,21 +100,20 @@ const bikeSchema = new mongoose.Schema<Bike>({
     percentage: { type: Number, required: true }
   }],
   images: [{ type: String }],
-  features: [{ type: String }],
   sellerInfo: {
     name: { type: String, required: true },
     phone: { type: String, required: true },
-    email: { type: String, required: true },
-    address: { type: String, required: true },
+    email: { type: String },
+    address: { type: String },
   },
   sellerAvailableDocs: {
     nid: { type: String, required: true },
-    drivingLicense: { type: String, required: true },
+    drivingLicense: { type: String },
     proofOfAddress: { type: String }
   },
   bikeAvailableDocs: {
-    taxToken: { type: String, required: true },
-    registration: { type: String, required: true },
+    taxToken: { type: String },
+    registration: { type: String },
     insurance: { type: String },
     fitnessReport: { type: String }
   },
@@ -170,10 +171,10 @@ const expensesSchema = new mongoose.Schema<Expense>({
   bikeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bike', required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
-  type: { 
-    type: String, 
-    enum: ['repair', 'maintenance', 'transportation', 'fuel', 'insurance', 'registration', 'parts', 'labor', 'other'], 
-    required: true 
+  type: {
+    type: String,
+    enum: ['repair', 'maintenance', 'transportation', 'fuel', 'insurance', 'registration', 'parts', 'labor', 'other'],
+    required: true
   },
   amount: { type: Number, required: true },
   date: { type: Date, required: true },
@@ -214,6 +215,7 @@ const publicInfoSchema = new mongoose.Schema<PublicInfo>({
 
 // Create indexes
 userSchema.index({ email: 1 })
+bikeSchema.index({ bikeNumber: 1 })
 bikeSchema.index({ brand: 1, model: 1 })
 bikeSchema.index({ price: 1 })
 bikeSchema.index({ status: 1 })
@@ -266,11 +268,11 @@ export class DatabaseUtils {
     console.log('Seeding database...')
     // Check if admin user exists
     const adminExists = await UserModel.findOne({ email: 'admin@bikeplatform.com' })
-    
+
     if (!adminExists) {
       const bcrypt = require('bcryptjs')
       const hashedPassword = await bcrypt.hash('admin123', 12)
-      
+
       await UserModel.create({
         name: 'Admin User',
         email: 'admin@bikeplatform.com',
@@ -278,10 +280,10 @@ export class DatabaseUtils {
         role: 'admin',
         isEmailVerified: true,
       })
-      
+
       console.log('Admin user created successfully')
     }
-    
+
     console.log('Database seeded successfully')
   }
 }

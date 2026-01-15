@@ -28,7 +28,7 @@ function formatSoldDate(dateString: string): string {
   const now = new Date()
   const diffTime = Math.abs(now.getTime() - soldDate.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
+
   if (diffDays === 1) return "1 day ago"
   if (diffDays < 7) return `${diffDays} days ago`
   if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`
@@ -57,8 +57,8 @@ export function RecentlySold({ soldBikes, loading = false }: RecentlySoldProps) 
             <p className="text-muted-foreground">See what bikes are selling in your area</p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="icon"
               onClick={prevSlide}
               disabled={currentIndex === 0}
@@ -66,8 +66,8 @@ export function RecentlySold({ soldBikes, loading = false }: RecentlySoldProps) 
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="icon"
               onClick={nextSlide}
               disabled={currentIndex >= maxIndex}
@@ -77,7 +77,7 @@ export function RecentlySold({ soldBikes, loading = false }: RecentlySoldProps) 
             </Button>
           </div>
         </div>
-        
+
         <div className="relative overflow-hidden">
           {loading ? (
             <div className="flex gap-6">
@@ -103,16 +103,16 @@ export function RecentlySold({ soldBikes, loading = false }: RecentlySoldProps) 
               ))}
             </div>
           ) : (
-            <div 
+            <div
               className="flex transition-transform duration-300 ease-in-out gap-6"
               style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}
             >
               {soldBikes.map((bike) => (
                 <div key={bike._id} className="flex-shrink-0" style={{ width: `calc(${100 / itemsPerView}% - 1rem)` }}>
-                  <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-card overflow-hidden h-full">
+                  <Card className="group py-0! hover:shadow-lg transition-all duration-300 border-border bg-card overflow-hidden h-full">
                     <div className="relative overflow-hidden">
-                      <img 
-                        src={bike.images?.[0] || '/placeholder-bike.jpg'} 
+                      <img
+                        src={bike.images?.[0] || '/placeholder-bike.jpg'}
                         alt={bike.title || `${bike.brand} ${bike.model}`}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -128,7 +128,7 @@ export function RecentlySold({ soldBikes, loading = false }: RecentlySoldProps) 
                         </h3>
                         <span className="text-sm text-muted-foreground">{bike.year}</span>
                       </div>
-                      
+
                       <div className="space-y-1 mb-3">
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <MapPin className="h-3 w-3" />
@@ -138,7 +138,7 @@ export function RecentlySold({ soldBikes, loading = false }: RecentlySoldProps) 
                           Sold {formatSoldDate(bike.updatedAt)}
                         </p>
                       </div>
-                      
+
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-foreground">৳{bike.price?.toLocaleString()}</span>
                         <div className="flex items-center text-sm text-green-600">

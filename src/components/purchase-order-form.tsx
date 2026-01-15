@@ -125,7 +125,7 @@ export default function PurchaseOrderForm({ purchaseOrder, onSubmit, onCancel, i
         duePaymentReceivingDate: purchaseOrder.duePaymentReceivingDate ? new Date(purchaseOrder.duePaymentReceivingDate) : undefined,
         notes: purchaseOrder.notes || undefined
       })
-       
+
       setAutoCalculateProfit(false)
     }
   }, [purchaseOrder, reset])
@@ -154,19 +154,19 @@ export default function PurchaseOrderForm({ purchaseOrder, onSubmit, onCancel, i
   useEffect(() => {
     if (autoCalculateProfit && selectedBike && watchedValues.amount > 0) {
       const totalProfit = watchedValues.amount - selectedBike.price
-      
+
       // Calculate admin share (myShare)
       const adminShare = selectedBike.myShare || 0
       const adminProfit = (totalProfit * adminShare) / 100
-      
+
       // Calculate partner profits based on their percentages from the bike
       const updatedPartnersProfit = watchedValues.partnersProfit.map(pp => {
-        const bikePartner = selectedBike.partners?.find(p => 
+        const bikePartner = selectedBike.partners?.find(p =>
           (typeof p.partnerId === 'string' ? p.partnerId : p.partnerId._id) === pp.partnerId
         )
         const partnerPercentage = bikePartner?.percentage || 0
         const partnerProfit = (totalProfit * partnerPercentage) / 100
-        
+
         return {
           ...pp,
           profit: partnerProfit,
@@ -182,7 +182,7 @@ export default function PurchaseOrderForm({ purchaseOrder, onSubmit, onCancel, i
   // Helper function for partner profit calculations
   const handlePartnerProfitChange = (partnerId: string, field: 'profit' | 'sharePercentage', value: number) => {
     const totalProfit = selectedBike ? watchedValues.amount - selectedBike.price : 0
-    
+
     const currentPartnersProfit = getValues('partnersProfit')
     const updatedPartnersProfit = currentPartnersProfit.map(pp => {
       if (pp.partnerId === partnerId) {
@@ -265,7 +265,7 @@ export default function PurchaseOrderForm({ purchaseOrder, onSubmit, onCancel, i
         </div>
       </div>
 
-   
+
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
         {/* Purchase Order Information */}
@@ -290,7 +290,7 @@ export default function PurchaseOrderForm({ purchaseOrder, onSubmit, onCancel, i
                     <SelectContent>
                       {bikes.filter(bike => bike.status === 'available' || bike._id === field.value).map((bike) => (
                         <SelectItem key={bike._id} value={bike._id || ''}>
-                          {bike.title} - ৳{bike.price.toLocaleString()}
+                          {bike.title} (#{bike.bikeNumber}) - ৳{bike.price.toLocaleString()}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -568,7 +568,7 @@ export default function PurchaseOrderForm({ purchaseOrder, onSubmit, onCancel, i
                         <h4 className="font-medium text-foreground">{partner.name}</h4>
                         <Badge variant="outline" className="w-fit">{partner.email}</Badge>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <Label htmlFor={`share-${partner._id}`} className="text-sm font-medium text-foreground">Share Percentage (%)</Label>

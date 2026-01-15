@@ -3,8 +3,8 @@ import { connectToDatabase } from '@/lib/database'
 import { BikeModel } from '@/lib/database'
 import { bikeQuerySchema } from '@/lib/validations'
 
-import { 
-  withErrorHandler, 
+import {
+  withErrorHandler,
   sendPaginatedResponse,
   validateQueryParams,
   paginationHelper
@@ -15,15 +15,14 @@ import { IBikeFilter } from '@/lib/interfaces/filters'
 const getPublicBikes = async (request: NextRequest) => {
   await connectToDatabase()
   const { searchParams } = new URL(request.url)
-  
+
   // Validate query parameters
   const queryData = validateQueryParams(searchParams, bikeQuerySchema)
   const { page, limit, brand, minPrice, maxPrice, search, sortBy, sortOrder, condition } = queryData as IBikeFilter
 
   // Build filter query - only show active bikes
-  const filter: any = { 
-    status: { $in: ['active', 'available'] },
-    isActive: true 
+  const filter: any = {
+    status: { $in: ['active', 'available'] }
   }
 
   if (brand) filter.brand = { $regex: brand, $options: 'i' }
@@ -43,10 +42,10 @@ const getPublicBikes = async (request: NextRequest) => {
   }
 
   // Calculate pagination
-  const { page: validatedPage, skip, sortBy: validatedSortBy, sortOrder: validatedSortOrder, limit: validatedLimit } = paginationHelper.calculatePagination({ 
-    page, 
-    limit, 
-    sortBy, 
+  const { page: validatedPage, skip, sortBy: validatedSortBy, sortOrder: validatedSortOrder, limit: validatedLimit } = paginationHelper.calculatePagination({
+    page,
+    limit,
+    sortBy,
     sortOrder: sortOrder as 'asc' | 'desc'
   })
 

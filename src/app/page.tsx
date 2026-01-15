@@ -8,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
-import { QuickSearch } from "@/components/quick-search"
 import { FeaturedBikes } from "@/components/featured-bikes"
 import { RecentlySold } from "@/components/recently-sold"
 
@@ -73,7 +72,7 @@ export default function Home() {
           fetchFeaturedBikes(),
           fetchSoldBikes()
         ])
-        
+
         setFeaturedBikesData(featuredResponse.data || [])
         setSoldBikesData(soldResponse.data || [])
       } catch (error) {
@@ -92,12 +91,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       {/* Hero Section */}
       <HeroSection platformStats={platformStats} />
-
-      {/* Quick Search */}
-      <QuickSearch />
 
       {/* Featured Bikes */}
       <FeaturedBikes featuredBikes={featuredBikesData} loading={loading} />
@@ -192,7 +188,7 @@ export default function Home() {
                 Browse our extensive collection of quality motorcycles or get personalized assistance from our experts
               </p>
             </div>
-            
+
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4 text-lg">

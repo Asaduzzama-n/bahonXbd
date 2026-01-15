@@ -46,12 +46,12 @@ export default function DashboardLayout({
     }
   }
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
       <AdminSidebar />
       
       {/* Main Content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden min-h-0">
         {/* Top Navigation Bar */}
         <header className="flex h-16 items-center justify-between border-b border-border bg-background px-4 md:px-6">
           {/* Mobile menu trigger */}
@@ -96,7 +96,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-auto bg-muted/10 p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto bg-muted/10 p-4 md:p-6">
           <div className="mx-auto  space-y-6">
             {children}
           </div>

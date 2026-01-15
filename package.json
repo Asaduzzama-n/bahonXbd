@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:bikes": "tsx scripts/seedBikes.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -53,6 +54,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "tw-animate-css": "^1.3.7",
     "typescript": "^5"
   }

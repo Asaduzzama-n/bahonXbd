@@ -18,13 +18,15 @@ export interface User {
 
 export interface Bike {
   _id?: string
+  bikeNumber: string
+  chassisNumber?: string
   title: string
   description: string
   brand: string
   model: string
-  year: number
+  year?: number
   condition: 'excellent' | 'good' | 'fair' | 'poor'
-  mileage: number
+  mileage?: number
   price: number
   purchasePrice: number
   purchaseDate: Date
@@ -34,7 +36,6 @@ export interface Bike {
     percentage: number
   }[]
   images: string[]
-  features: string[]
   sellerInfo: {
     name: string
     phone: string
@@ -43,12 +44,12 @@ export interface Bike {
   }
   sellerAvailableDocs: {
     nid: string
-    drivingLicense: string
+    drivingLicense?: string
     proofOfAddress?: string
   }
   bikeAvailableDocs: {
-    taxToken: string
-    registration: string
+    taxToken?: string
+    registration?: string
     insurance?: string
     fitnessReport?: string
   }
@@ -122,19 +123,19 @@ export interface Expense {
 
 export interface Partner {
   _id?: string
-   name: string
-   phone: string
-   email: string
-   address: string
-   documents: {
+  name: string
+  phone: string
+  email: string
+  address: string
+  documents: {
     nid: string
     drivingLicense: string
     proofOfAddress?: string
-   }
-   profile?: string
-   isActive: boolean
-   createdAt: Date
-   updatedAt: Date
+  }
+  profile?: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
 

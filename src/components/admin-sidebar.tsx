@@ -11,13 +11,10 @@ import {
   Bike,
   ShoppingCart,
   BarChart3,
-  Settings,
   Menu,
   ChevronLeft,
   ChevronRight,
   Droplets,
-  FileText,
-  UserCheck,
   TrendingUp,
   Package,
   Calendar,
@@ -70,28 +67,10 @@ const sidebarItems = [
     description: "Detailed analytics"
   },
   {
-    title: "Reports",
-    href: "/admin/reports",
-    icon: FileText,
-    description: "Generate reports"
-  },
-  {
-    title: "Verification",
-    href: "/admin/verification",
-    icon: UserCheck,
-    description: "Verify listings"
-  },
-  {
     title: "Public Info",
     href: "/admin/profile",
     icon: User,
     description: "Manage public information"
-  },
-  {
-    title: "Settings",
-    href: "/admin/settings",
-    icon: Settings,
-    description: "System settings"
   }
 ]
 
@@ -145,9 +124,9 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-2" role="navigation" aria-label="Admin dashboard navigation">
         {sidebarItems.map((item) => {
-          const isActive = pathname === item.href || 
+          const isActive = pathname === item.href ||
             (item.href !== "/admin" && pathname.startsWith(item.href))
-          
+
           return (
             <Link
               key={item.href}
@@ -156,8 +135,8 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
                 "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 "hover:bg-accent hover:text-accent-foreground",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                isActive 
-                  ? "bg-accent text-accent-foreground" 
+                isActive
+                  ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground",
                 isCollapsed && !mobile ? "justify-center px-2" : "justify-start"
               )}

@@ -38,6 +38,8 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
   } = useForm<BikeInput>({
     resolver: zodResolver(bikeSchema as any),
     defaultValues: {
+      bikeNumber: "",
+      chassisNumber: "",
       title: "",
       description: "",
       brand: "",
@@ -51,7 +53,6 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
       myShare: 0,
       partners: [],
       images: [],
-      features: [],
       sellerInfo: {
         name: "",
         phone: "",
@@ -78,7 +79,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
   const [partners, setPartners] = useState<Partner[]>([])
   const [newFeature, setNewFeature] = useState("")
   const [newImage, setNewImage] = useState("")
-  const [shareAmountInputs, setShareAmountInputs] = useState<{[key: number]: string}>({})
+  const [shareAmountInputs, setShareAmountInputs] = useState<{ [key: number]: string }>({})
 
   useEffect(() => {
     fetchPartners()
@@ -93,6 +94,8 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
       })) || []
 
       reset({
+        bikeNumber: bike.bikeNumber || "",
+        chassisNumber: bike.chassisNumber || "",
         title: bike.title || "",
         description: bike.description || "",
         brand: bike.brand || "",
@@ -106,7 +109,6 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
         myShare: bike.myShare || 0,
         partners: formattedPartners,
         images: bike.images || [],
-        features: bike.features || [],
         sellerInfo: bike.sellerInfo || {
           name: "",
           phone: "",
@@ -215,17 +217,16 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
     setValue('partners', currentPartners.filter((_, i) => i !== index))
   }
 
-  const addToArray = (field: 'features' | 'images', value: string) => {
+  const addToArray = (field: 'images', value: string) => {
     if (!value.trim()) return
 
     const currentArray = watchedValues[field] || []
     setValue(field, [...currentArray, value.trim()])
 
-    if (field === 'features') setNewFeature("")
     if (field === 'images') setNewImage("")
   }
 
-  const removeFromArray = (field: 'features' | 'images', index: number) => {
+  const removeFromArray = (field: 'images', index: number) => {
     const currentArray = watchedValues[field] || []
     setValue(field, currentArray.filter((_, i) => i !== index))
   }
@@ -253,7 +254,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
         </Button>
       </div>
 
-     
+
 
       <form onSubmit={handleSubmit(onFormSubmit as any)} className="space-y-6">
         {/* Basic Information */}
@@ -303,9 +304,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="year" className="text-sm font-medium text-foreground">
-                  Year <span className="text-destructive">*</span>
-                </Label>
+                <Label htmlFor="year" className="text-sm font-medium text-foreground">Year</Label>
                 <Input
                   id="year"
                   type="number"
@@ -315,6 +314,30 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
                   className={`${errors.year ? 'border-destructive' : 'border-input'} bg-background`}
                 />
                 {errors.year && <p className="text-destructive text-sm mt-1">{errors.year.message}</p>}
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="bikeNumber" className="text-sm font-medium text-foreground">
+                  Bike Number <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="bikeNumber"
+                  {...register('bikeNumber')}
+                  placeholder="e.g., BK-001, BIKE-2024-001"
+                  className={`${errors.bikeNumber ? 'border-destructive' : 'border-input'} bg-background`}
+                />
+                {errors.bikeNumber && <p className="text-destructive text-sm mt-1">{errors.bikeNumber.message}</p>}
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="chassisNumber" className="text-sm font-medium text-foreground">Chassis Number</Label>
+                <Input
+                  id="chassisNumber"
+                  {...register('chassisNumber')}
+                  placeholder="e.g., MBLHA10AAJK123456"
+                  className={`${errors.chassisNumber ? 'border-destructive' : 'border-input'} bg-background`}
+                />
+                {errors.chassisNumber && <p className="text-destructive text-sm mt-1">{errors.chassisNumber.message}</p>}
               </div>
 
               <div className="space-y-3">
@@ -335,9 +358,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="mileage" className="text-sm font-medium text-foreground">
-                  Mileage (km) <span className="text-destructive">*</span>
-                </Label>
+                <Label htmlFor="mileage" className="text-sm font-medium text-foreground">Mileage (km)</Label>
                 <Input
                   id="mileage"
                   type="number"
@@ -472,9 +493,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="sellerEmail" className="text-sm font-medium text-foreground">
-                  Email <span className="text-destructive">*</span>
-                </Label>
+                <Label htmlFor="sellerEmail" className="text-sm font-medium text-foreground">Email</Label>
                 <Input
                   id="sellerEmail"
                   type="email"
@@ -498,34 +517,6 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
                   className={`${errors.sellerInfo?.address ? 'border-destructive' : 'border-input'} bg-background`}
                 />
                 {errors.sellerInfo?.address && <p className="text-destructive text-sm mt-1">{errors.sellerInfo?.address.message}</p>}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <Label className="text-sm font-medium text-foreground">Features</Label>
-              <div className="flex space-x-2">
-                <Input
-                  value={newFeature}
-                  onChange={(e) => setNewFeature(e.target.value)}
-                  placeholder="Add a feature (e.g., ABS, LED Headlight)"
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addToArray('features', newFeature))}
-                  className="border-input bg-background"
-                />
-                <Button type="button" onClick={() => addToArray('features', newFeature)} className="shrink-0">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {watchedValues.features?.map((feature, index) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="cursor-pointer"
-                    onClick={() => removeFromArray('features', index)}
-                  >
-                    {feature} <Minus className="ml-1 h-3 w-3" />
-                  </Badge>
-                ))}
               </div>
             </div>
           </CardContent>
@@ -604,7 +595,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
                             const newPartners = [...(watchedValues.partners || [])]
                             newPartners[index].percentage = Math.min(100, Math.max(0, newPercentage))
                             setValue('partners', newPartners)
-                            
+
                             // Clear local state after updating form
                             setShareAmountInputs(prev => {
                               const newState = { ...prev }
@@ -752,9 +743,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="sellerDrivingLicense" className="text-sm font-medium text-foreground">
-                    Driving License <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="sellerDrivingLicense" className="text-sm font-medium text-foreground">Driving License</Label>
                   <Input
                     id="sellerDrivingLicense"
                     value={watchedValues.sellerAvailableDocs?.drivingLicense || ""}
@@ -785,9 +774,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
               <Label className="text-sm font-medium text-foreground">Bike Documents (Links)</Label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  <Label htmlFor="bikeTaxToken" className="text-sm font-medium text-foreground">
-                    Tax Token <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="bikeTaxToken" className="text-sm font-medium text-foreground">Tax Token</Label>
                   <Input
                     id="bikeTaxToken"
                     value={watchedValues.bikeAvailableDocs?.taxToken || ""}
@@ -799,9 +786,7 @@ export default function BikeForm({ bike, onSubmit, onCancel, isLoading = false }
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="bikeRegistration" className="text-sm font-medium text-foreground">
-                    Registration <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="bikeRegistration" className="text-sm font-medium text-foreground">Registration</Label>
                   <Input
                     id="bikeRegistration"
                     value={watchedValues.bikeAvailableDocs?.registration || ""}

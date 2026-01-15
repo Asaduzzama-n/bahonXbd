@@ -34,65 +34,75 @@ export const sellerInfoSchema = z.object({
 // Seller documents validation schema
 export const sellerDocsSchema = z.object({
   nid: z.string().url('NID document must be a valid URL'),
-  drivingLicense: z.string().url('Driving license must be a valid URL'),
+  drivingLicense: z.string().url('Driving license must be a valid URL').optional(),
   proofOfAddress: z.string().url('Proof of address must be a valid URL').optional()
 })
 
 // Bike documents validation schema
 export const bikeDocsSchema = z.object({
-  taxToken: z.string().url('Tax token document must be a valid URL'),
-  registration: z.string().url('Registration document must be a valid URL'),
+  taxToken: z.string().url('Tax token document must be a valid URL').optional(),
+  registration: z.string().url('Registration document must be a valid URL').optional(),
   insurance: z.string().url('Insurance document must be a valid URL').optional(),
   fitnessReport: z.string().url('Fitness report must be a valid URL').optional()
 })
 
 // Main bike validation schema
 export const bikeSchema = z.object({
+  bikeNumber: z.string()
+    .min(1, 'Bike number is required')
+    .max(50, 'Bike number cannot exceed 50 characters'),
+
+  chassisNumber: z.string()
+    .max(100, 'Chassis number cannot exceed 100 characters')
+    .optional(),
+
   title: z.string()
     .min(3, 'Title must be at least 3 characters')
     .max(100, 'Title cannot exceed 100 characters'),
-  
+
   description: z.string()
     .min(10, 'Description must be at least 10 characters')
     .max(2000, 'Description cannot exceed 2000 characters'),
-  
+
   brand: z.string()
     .min(2, 'Brand must be at least 2 characters')
     .max(50, 'Brand cannot exceed 50 characters'),
-  
+
   model: z.string()
     .min(1, 'Model is required')
     .max(50, 'Model cannot exceed 50 characters'),
-  
+
   year: z.number()
     .int('Year must be an integer')
     .min(1900, 'Year must be at least 1900')
-    .max(new Date().getFullYear() + 1, 'Year cannot be in the future'),
-  
+    .max(new Date().getFullYear() + 1, 'Year cannot be in the future')
+    .optional(),
+
   condition: z.enum(['excellent', 'good', 'fair', 'poor'], {
     message: 'Condition must be excellent, good, fair, or poor'
   }),
-  
+
   mileage: z.number()
     .min(0, 'Mileage must be at least 0')
-    .max(1000000, 'Mileage seems unrealistic'),
-  
+    .max(1000000, 'Mileage seems unrealistic')
+    .optional(),
+
   price: z.number()
     .min(1, 'Price must be at least 1')
     .max(10000000, 'Price seems unrealistic'),
-  
+
   purchasePrice: z.number()
     .min(1, 'Purchase price must be at least 1')
     .max(10000000, 'Purchase price seems unrealistic'),
-  
+
   purchaseDate: z.string()
     .min(1, 'Purchase date is required')
     .transform((val) => new Date(val)),
-  
+
   myShare: z.number()
     .min(0, 'My share must be at least 0')
     .optional(),
-  
+
   partners: z.array(partnerSchema)
     .optional()
     .default([])
@@ -102,27 +112,23 @@ export const bikeSchema = z.object({
     }, {
       message: 'Total partner percentage cannot exceed 100%'
     }),
-  
+
   images: z.array(z.string().url('Invalid image URL'))
     .optional()
     .default([]),
-  
-  features: z.array(z.string().min(1, 'Feature cannot be empty'))
-    .optional()
-    .default([]),
-  
+
   sellerInfo: sellerInfoSchema,
-  
+
   sellerAvailableDocs: sellerDocsSchema,
-  
+
   bikeAvailableDocs: bikeDocsSchema,
-  
+
   serviceHistory: z.array(z.string())
     .optional()
     .default([]),
-  
+
   status: z.enum(['active', 'sold', 'pending', 'inactive', 'available']).optional().default('active'),
-  
+
   isFeatured: z.boolean()
     .optional()
     .default(false)
@@ -133,11 +139,11 @@ export const bikeSchema = z.object({
       const amount = (data.price * partner.percentage) / 100
       return sum + amount
     }, 0)
-    
+
     if (totalPartnerAmount > data.price) {
       return false
     }
-    
+
     // Also ensure myShare is reasonable
     if (data.myShare && data.myShare < 0) {
       return false
@@ -156,23 +162,23 @@ export const bikeQuerySchema = z.object({
   page: z.string().optional().transform((val) => val ? parseInt(val) : 1),
   limit: z.string().optional().transform((val) => val ? parseInt(val) : 12),
   brand: z.string().optional(),
-  condition: z.string().optional().refine((val) => 
-    !val || ['excellent', 'good', 'fair', 'poor'].includes(val), 
+  condition: z.string().optional().refine((val) =>
+    !val || ['excellent', 'good', 'fair', 'poor'].includes(val),
     { message: 'Invalid condition value' }
   ),
   minPrice: z.string().optional().transform((val) => val ? parseInt(val) : undefined),
   maxPrice: z.string().optional().transform((val) => val ? parseInt(val) : undefined),
   search: z.string().optional(),
-  sortBy: z.string().optional().refine((val) => 
-    !val || ['createdAt', 'updatedAt', 'price', 'year', 'mileage', 'title', 'brand', 'model'].includes(val), 
+  sortBy: z.string().optional().refine((val) =>
+    !val || ['createdAt', 'updatedAt', 'price', 'year', 'mileage', 'title', 'brand', 'model'].includes(val),
     { message: 'Invalid sortBy field' }
   ).transform((val) => val || 'createdAt'),
-  sortOrder: z.string().optional().refine((val) => 
-    !val || ['asc', 'desc'].includes(val), 
+  sortOrder: z.string().optional().refine((val) =>
+    !val || ['asc', 'desc'].includes(val),
     { message: 'Invalid sortOrder value' }
   ).transform((val) => (val as 'asc' | 'desc') || 'desc'),
-  status: z.string().optional().refine((val) => 
-    !val || ['active', 'sold', 'pending', 'inactive', 'available'].includes(val), 
+  status: z.string().optional().refine((val) =>
+    !val || ['active', 'sold', 'pending', 'inactive', 'available'].includes(val),
     { message: 'Invalid status value' }
   )
 })
@@ -186,12 +192,12 @@ export const adminBikeQuerySchema = bikeQuerySchema.extend({
 export const partnerQuerySchema = z.object({
   search: z.string().optional(),
   isActive: z.string().optional().transform((val) => val === 'true' ? true : val === 'false' ? false : undefined),
-  sortBy: z.string().optional().refine((val) => 
-    !val || ['createdAt', 'updatedAt', 'name', 'phone', 'email'].includes(val), 
+  sortBy: z.string().optional().refine((val) =>
+    !val || ['createdAt', 'updatedAt', 'name', 'phone', 'email'].includes(val),
     { message: 'Invalid sortBy field' }
   ).transform((val) => val || 'createdAt'),
-  sortOrder: z.string().optional().refine((val) => 
-    !val || ['asc', 'desc'].includes(val), 
+  sortOrder: z.string().optional().refine((val) =>
+    !val || ['asc', 'desc'].includes(val),
     { message: 'Invalid sortOrder value' }
   ).transform((val) => (val as 'asc' | 'desc') || 'desc')
 })
@@ -200,7 +206,7 @@ export const partnerToggleActiveSchema = z.object({
   isActive: z.boolean()
 })
 
-export const partnerCreateSchema =  z.object({
+export const partnerCreateSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   phone: z.string().min(1, 'Phone number is required'),
   email: z.string().email('Invalid email address'),
@@ -228,16 +234,16 @@ export const bikeWashLocationUpdateSchema = bikeWashLocationCreateSchema.partial
 
 export const bikeWashLocationQuerySchema = z.object({
   search: z.string().optional(),
-  status: z.string().optional().refine((val) => 
-    !val || ['active', 'inactive'].includes(val), 
+  status: z.string().optional().refine((val) =>
+    !val || ['active', 'inactive'].includes(val),
     { message: 'Invalid status value' }
   ),
-  sortBy: z.string().optional().refine((val) => 
-    !val || ['createdAt', 'updatedAt', 'location', 'price'].includes(val), 
+  sortBy: z.string().optional().refine((val) =>
+    !val || ['createdAt', 'updatedAt', 'location', 'price'].includes(val),
     { message: 'Invalid sortBy field' }
   ).transform((val) => val || 'createdAt'),
-  sortOrder: z.string().optional().refine((val) => 
-    !val || ['asc', 'desc'].includes(val), 
+  sortOrder: z.string().optional().refine((val) =>
+    !val || ['asc', 'desc'].includes(val),
     { message: 'Invalid sortOrder value' }
   ).transform((val) => (val as 'asc' | 'desc') || 'desc')
 })
@@ -286,24 +292,24 @@ export const purchaseOrderQuerySchema = z.object({
   page: z.string().optional().transform((val) => val ? parseInt(val) : 1),
   limit: z.string().optional().transform((val) => val ? parseInt(val) : 50),
   search: z.string().optional(),
-  status: z.string().optional().refine((val) => 
-    !val || ['pending', 'confirmed', 'cancelled'].includes(val), 
+  status: z.string().optional().refine((val) =>
+    !val || ['pending', 'confirmed', 'cancelled'].includes(val),
     { message: 'Invalid status value' }
   ),
-  paymentStatus: z.string().optional().refine((val) => 
-    !val || ['pending', 'paid', 'partial', 'failed'].includes(val), 
+  paymentStatus: z.string().optional().refine((val) =>
+    !val || ['pending', 'paid', 'partial', 'failed'].includes(val),
     { message: 'Invalid payment status value' }
   ),
-  paymentMethod: z.string().optional().refine((val) => 
-    !val || ['Bkash', 'Cash', 'Bank Transfer'].includes(val), 
+  paymentMethod: z.string().optional().refine((val) =>
+    !val || ['Bkash', 'Cash', 'Bank Transfer'].includes(val),
     { message: 'Invalid payment method value' }
   ),
-  sortBy: z.string().optional().refine((val) => 
-    !val || ['createdAt', 'updatedAt', 'amount', 'profit', 'buyerName', 'status', 'paymentStatus'].includes(val), 
+  sortBy: z.string().optional().refine((val) =>
+    !val || ['createdAt', 'updatedAt', 'amount', 'profit', 'buyerName', 'status', 'paymentStatus'].includes(val),
     { message: 'Invalid sortBy field' }
   ).transform((val) => val || 'createdAt'),
-  sortOrder: z.string().optional().refine((val) => 
-    !val || ['asc', 'desc'].includes(val), 
+  sortOrder: z.string().optional().refine((val) =>
+    !val || ['asc', 'desc'].includes(val),
     { message: 'Invalid sortOrder value' }
   ).transform((val) => (val as 'asc' | 'desc') || 'desc')
 })
@@ -329,16 +335,16 @@ export const expenseQuerySchema = z.object({
   limit: z.string().optional().transform((val) => val ? parseInt(val) : 50),
   search: z.string().optional(),
   bikeId: z.string().optional(),
-  type: z.string().optional().refine((val) => 
-    !val || ['repair', 'maintenance', 'transportation', 'fuel', 'insurance', 'registration', 'other'].includes(val), 
+  type: z.string().optional().refine((val) =>
+    !val || ['repair', 'maintenance', 'transportation', 'fuel', 'insurance', 'registration', 'other'].includes(val),
     { message: 'Invalid expense type' }
   ),
-  sortBy: z.string().optional().refine((val) => 
-    !val || ['createdAt', 'updatedAt', 'amount', 'date', 'title', 'type'].includes(val), 
+  sortBy: z.string().optional().refine((val) =>
+    !val || ['createdAt', 'updatedAt', 'amount', 'date', 'title', 'type'].includes(val),
     { message: 'Invalid sortBy field' }
   ).transform((val) => val || 'createdAt'),
-  sortOrder: z.string().optional().refine((val) => 
-    !val || ['asc', 'desc'].includes(val), 
+  sortOrder: z.string().optional().refine((val) =>
+    !val || ['asc', 'desc'].includes(val),
     { message: 'Invalid sortOrder value' }
   ).transform((val) => (val as 'asc' | 'desc') || 'desc')
 })
