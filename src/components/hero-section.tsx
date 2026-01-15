@@ -1,7 +1,8 @@
-import Link from "next/link"
+
 import { ArrowRight, CheckCircle, Shield, Award, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 
 interface PlatformStats {
   totalBikesSold: number
