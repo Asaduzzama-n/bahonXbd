@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Gauge } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -65,10 +66,12 @@ export function FeaturedBikes({ featuredBikes, loading = false }: FeaturedBikesP
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <Button variant="outline" size="sm" className="border-border hover:bg-muted text-sm px-3 py-1.5">
-              View All
-              <ArrowRight className="ml-2 h-3 w-3" />
-            </Button>
+            <Link href="/listings">
+              <Button variant="outline" size="sm" className="border-border hover:bg-muted text-sm px-3 py-1.5">
+                View All
+                <ArrowRight className="ml-2 h-3 w-3" />
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -103,7 +106,7 @@ export function FeaturedBikes({ featuredBikes, loading = false }: FeaturedBikesP
             >
               {featuredBikes.map((bike) => (
                 <div key={bike._id} className="flex-shrink-0" style={{ width: `calc(${100 / itemsPerView}% - 1rem)` }}>
-                  <Card className="group hover:shadow-lg transition-all duration-300 border-border py-0!  bg-card overflow-hidden h-full">
+                  <Card className="group hover:shadow-lg transition-all duration-300 border-border  bg-card overflow-hidden h-full">
                     <div className="relative overflow-hidden">
                       <img
                         src={bike.images?.[0] || '/placeholder-bike.jpg'}
@@ -135,9 +138,11 @@ export function FeaturedBikes({ featuredBikes, loading = false }: FeaturedBikesP
 
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-primary">৳{bike.price?.toLocaleString()}</span>
-                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                          View Details
-                        </Button>
+                        <Link href={`/listings/${bike._id}`}>
+                          <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                            View Details
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>

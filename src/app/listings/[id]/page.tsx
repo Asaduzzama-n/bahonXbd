@@ -31,7 +31,9 @@ export default function BikeDetailsPage() {
     const loadBike = async () => {
       try {
         setIsLoading(true)
-        const bikeData = await fetchBikeDetails(params.id as string)
+        const response = await fetchBikeDetails(params.id as string)
+        // Extract data from API response - check both response.data and direct response
+        const bikeData = response.data || response
         setBike(bikeData)
       } catch (error) {
         console.error('Error loading bike:', error)
@@ -102,7 +104,7 @@ export default function BikeDetailsPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-6">
@@ -118,28 +120,33 @@ export default function BikeDetailsPage() {
           {/* Image Gallery */}
           <div className="space-y-4">
             <div className="aspect-video relative overflow-hidden rounded-lg">
-              <Image
-                src={bike.images[selectedImage]}
-                alt={bike.title}
-                fill
-                className="object-cover"
-              />
+              {bike.images && bike.images.length > 0 ? (
+                <Image
+                  src={bike.images[selectedImage] || bike.images[0]}
+                  alt={bike.title}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <span className="text-muted-foreground">No image available</span>
+                </div>
+              )}
               {bike.isFeatured && (
                 <Badge className="absolute top-4 left-4 bg-orange-500 text-white">
                   Featured
                 </Badge>
               )}
             </div>
-            
+
             {/* Thumbnail Gallery */}
             <div className="flex gap-2 overflow-x-auto">
               {bike.images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                    selectedImage === index ? 'border-orange-500' : 'border-muted'
-                  }`}
+                  className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-orange-500' : 'border-muted'
+                    }`}
                 >
                   <Image
                     src={image}
@@ -158,16 +165,8 @@ export default function BikeDetailsPage() {
             <div>
               <div className="flex justify-between items-start mb-2">
                 <h1 className="text-3xl font-bold">{bike.title}</h1>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline">
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
-              
+
               <div className="flex items-center gap-3 mb-4">
                 <Badge className={getConditionColor(bike.condition)}>
                   {bike.condition.charAt(0).toUpperCase() + bike.condition.slice(1)}
@@ -175,7 +174,7 @@ export default function BikeDetailsPage() {
                 <span className="text-muted-foreground">•</span>
                 <span className="text-muted-foreground">{bike.brand} {bike.model}</span>
               </div>
-              
+
               <div className="text-4xl font-bold brand-orange mb-6">
                 {formatPrice(bike.price)}
               </div>
@@ -192,10 +191,14 @@ export default function BikeDetailsPage() {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">Year: {bike.year}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Gauge className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Mileage: {bike.mileage.toLocaleString()} km</span>
-                  </div>
+                  {
+                    bike.mileage && (
+                      <div className="flex items-center gap-2">
+                        <Gauge className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">Mileage: {bike.mileage.toLocaleString()} km</span>
+                      </div>
+                    )
+                  }
                   <div className="flex items-center gap-2">
                     <Fuel className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">Brand: {bike.brand}</span>
@@ -208,29 +211,13 @@ export default function BikeDetailsPage() {
               </CardContent>
             </Card>
 
-            {/* Features */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Features</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {bike.features.map((feature, index) => (
-                    <Badge key={index} variant="secondary">
-                      {feature}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Contact Actions */}
-            <div className="space-y-3">
-              <Button size="lg" className="w-full bg-brand-orange hover-brand-orange">
+            <div className="flex gap-3">
+              <Button size="lg" className="flex-1 bg-primary hover:bg-primary/90">
                 <Phone className="h-4 w-4 mr-2" />
-                Call Seller
+                Call Now
               </Button>
-              <Button size="lg" variant="outline" className="w-full border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white">
+              <Button size="lg" variant="outline" className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                 <Mail className="h-4 w-4 mr-2" />
                 Send Message
               </Button>
@@ -247,28 +234,6 @@ export default function BikeDetailsPage() {
             <p className="text-muted-foreground leading-relaxed">
               {bike.description}
             </p>
-          </CardContent>
-        </Card>
-
-        {/* Seller Information */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Seller Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold">BahonXBD Verified Dealer</h3>
-                <p className="text-sm text-muted-foreground">Professional bike dealer with 8+ years experience</p>
-                <div className="flex items-center gap-4 mt-2">
-                  <span className="text-sm text-muted-foreground">📍 Dhanmondi, Dhaka</span>
-                  <span className="text-sm text-muted-foreground">⭐ 4.8/5 (156 reviews)</span>
-                </div>
-              </div>
-              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                Verified Seller
-              </Badge>
-            </div>
           </CardContent>
         </Card>
       </main>

@@ -9,7 +9,7 @@ import { isValidObjectId } from 'mongoose'
 // GET /api/admin/bike-wash-locations/[id] - Get single bike wash location details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
@@ -17,7 +17,7 @@ export async function GET(
 
     await connectToDatabase()
 
-    const { id } = params
+    const { id } = await params
 
     // Validate ObjectId
     if (!isValidObjectId(id)) {
@@ -45,7 +45,7 @@ export async function GET(
 // PATCH /api/admin/bike-wash-locations/[id] - Update bike wash location (including toggle status)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
@@ -53,7 +53,7 @@ export async function PATCH(
 
     await connectToDatabase()
 
-    const { id } = params
+    const { id } = await params
 
     // Validate ObjectId
     if (!isValidObjectId(id)) {
@@ -62,24 +62,24 @@ export async function PATCH(
 
     // Parse and validate request body
     const body = await request.json()
-    
+
     // Check if this is just a toggle status request or full update
     let validatedData: BikeWashLocationToggleStatus | BikeWashLocationUpdate
-    
+
     if (Object.keys(body).length === 1 && 'status' in body) {
       // Simple toggle status request
       validatedData = bikeWashLocationToggleStatusSchema.parse(body) as BikeWashLocationToggleStatus
     } else {
       // Full update request
       validatedData = bikeWashLocationUpdateSchema.parse(body) as BikeWashLocationUpdate
-      
+
       // If updating location, check for duplicates
       if (validatedData.location) {
         const existingLocation = await BikeWashLocationModel.findOne({
           _id: { $ne: id },
           location: { $regex: new RegExp(`^${validatedData.location}$`, 'i') }
         })
-        
+
         if (existingLocation) {
           return sendErrorResponse({ message: 'Bike wash location with this location already exists', statusCode: 409 })
         }
@@ -89,13 +89,13 @@ export async function PATCH(
     // Update bike wash location
     const updatedBikeWashLocation = await BikeWashLocationModel.findByIdAndUpdate(
       id,
-      { 
+      {
         ...validatedData,
         updatedAt: new Date()
       },
-      { 
-        new: true, 
-        runValidators: true 
+      {
+        new: true,
+        runValidators: true
       }
     ).select('-__v').lean()
 
@@ -111,7 +111,7 @@ export async function PATCH(
   } catch (error: any) {
     console.error('Error updating bike wash location:', error)
     return sendErrorResponse({
-      message: error.name === 'ZodError' 
+      message: error.name === 'ZodError'
         ? `Validation error: ${error.errors.map((e: any) => e.message).join(', ')}`
         : 'Failed to update bike wash location',
       statusCode: error.name === 'ZodError' ? 400 : 500
@@ -122,7 +122,7 @@ export async function PATCH(
 // DELETE /api/admin/bike-wash-locations/[id] - Delete bike wash location (soft delete by setting status to inactive)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
@@ -130,7 +130,7 @@ export async function DELETE(
 
     await connectToDatabase()
 
-    const { id } = params
+    const { id } = await params
 
     // Validate ObjectId
     if (!isValidObjectId(id)) {
@@ -140,12 +140,12 @@ export async function DELETE(
     // Soft delete by setting status to inactive
     const deletedBikeWashLocation = await BikeWashLocationModel.findByIdAndUpdate(
       id,
-      { 
+      {
         status: 'inactive',
         updatedAt: new Date()
       },
-      { 
-        new: true 
+      {
+        new: true
       }
     ).select('-__v').lean()
 

@@ -3,8 +3,8 @@ import { connectToDatabase } from '@/lib/database'
 import { BikeModel, PartnerModel } from '@/lib/database'
 import { bikeUpdateSchema } from '@/lib/validations'
 import { z } from 'zod'
-import { 
-  withErrorHandler, 
+import {
+  withErrorHandler,
   sendSuccessResponse,
   validateRequestBody,
   ApiError,
@@ -14,17 +14,19 @@ import {
 
 const getBikeById = async (
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   await connectToDatabase()
-  
+
+  const { id } = await params
+
   // Validate the bike ID
-  const validation = mongoIdSchema.safeParse(params.id)
+  const validation = mongoIdSchema.safeParse(id)
   if (!validation.success) {
     throw new ApiError(400, 'Invalid bike ID format')
   }
-  
-  const bike = await BikeModel.findById(params.id)
+
+  const bike = await BikeModel.findById(id)
     .populate('partners.partnerId', 'name email')
     .lean()
 
@@ -33,7 +35,7 @@ const getBikeById = async (
   }
 
   // Increment views
-  await BikeModel.findByIdAndUpdate(params.id, { $inc: { views: 1 } })
+  await BikeModel.findByIdAndUpdate(id, { $inc: { views: 1 } })
 
   return sendSuccessResponse({
     data: bike,
@@ -45,12 +47,14 @@ export const GET = withErrorHandler(getBikeById)
 
 const patchBike = async (
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   await connectToDatabase()
-  
+
+  const { id } = await params
+
   // Validate the bike ID
-  const validation = mongoIdSchema.safeParse(params.id)
+  const validation = mongoIdSchema.safeParse(id)
   if (!validation.success) {
     throw new ApiError(400, 'Invalid bike ID format')
   }
@@ -62,14 +66,14 @@ const patchBike = async (
   if (updateData.partners && updateData.partners.length > 0) {
     const partnerIds = updateData.partners.map(p => p.partnerId)
     const existingPartners = await PartnerModel.find({ _id: { $in: partnerIds } })
-    
+
     if (existingPartners.length !== partnerIds.length) {
       throw new ApiError(400, 'One or more partner IDs are invalid')
     }
   }
 
   // Get existing bike
-  const bike = await BikeModel.findById(params.id)
+  const bike = await BikeModel.findById(id)
   if (!bike) {
     throw new ApiError(404, 'Bike not found')
   }
@@ -78,7 +82,7 @@ const patchBike = async (
   if (updateData.partners || updateData.price) {
     const partners = updateData.partners || bike.partners
     const price = updateData.price || bike.price
-    
+
     if (partners && partners.length > 0) {
       const totalPartnerPercentage = partners.reduce((sum: number, partner: { partnerId: string, percentage: number }) => sum + partner.percentage, 0)
       updateData.myShare = price * (100 - totalPartnerPercentage) / 100
@@ -88,7 +92,7 @@ const patchBike = async (
   }
 
   const updatedBike = await BikeModel.findByIdAndUpdate(
-    params.id,
+    id,
     updateData,
     { new: true, runValidators: true }
   ).populate('partners.partnerId', 'name email')

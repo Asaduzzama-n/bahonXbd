@@ -10,6 +10,7 @@ import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
 import { FeaturedBikes } from "@/components/featured-bikes"
 import { RecentlySold } from "@/components/recently-sold"
+import { CustomerTestimonials } from "@/components/customer-testimonials"
 
 // Mock data for platform statistics (this would come from a separate API in a real app)
 const platformStats = {
@@ -101,48 +102,8 @@ export default function Home() {
       {/* Recently Sold */}
       <RecentlySold soldBikes={soldBikesData} loading={loading} />
 
-      {/* Customer Reviews */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">What Our Customers Say</h2>
-          <div className="overflow-hidden">
-            <div className="flex animate-scroll hover:pause space-x-6">
-              {[...customerReviews, ...customerReviews].map((review, index) => (
-                <Card key={index} className="min-w-[350px] flex-shrink-0">
-                  <CardContent className="p-6">
-                    <div className="flex items-center mb-3">
-                      <div className="flex text-orange-400">
-                        {[...Array(review.rating)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-current" />
-                        ))}
-                      </div>
-                      <span className="ml-2 text-sm text-muted-foreground">({review.rating}/5)</span>
-                    </div>
-                    <p className="text-muted-foreground mb-4 italic">"{review.review}"</p>
-                    <div className="border-t pt-4">
-                      <p className="font-semibold">{review.name}</p>
-                      <p className="text-sm brand-orange">Purchased: {review.bike}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-          <div className="text-center mt-8">
-            <p className="text-muted-foreground mb-4">Over 1,000+ happy customers and counting</p>
-            <div className="flex justify-center items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="flex text-orange-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-current" />
-                  ))}
-                </div>
-                <span className="font-semibold">4.8/5 Average Rating</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Customer Testimonials */}
+      <CustomerTestimonials />
 
       {/* Trust & Transparency Section */}
       {/* <section className="py-16 bg-muted/50">

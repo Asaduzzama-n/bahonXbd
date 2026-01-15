@@ -50,17 +50,17 @@ export function HeroSection({ platformStats }: HeroSectionProps) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-up">
             <Button
               size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-10 py-6 text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-8 py-3 text-base rounded-lg transition-colors duration-200"
             >
               <Link href="/listings" className="flex items-center gap-2">
                 Browse All Bikes
-                <ArrowRight className="h-5 w-5" />
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold px-10 py-6 text-lg hover:scale-105 transition-all duration-300"
+              className="border-2 border-primary text-primary hover:bg-primary/5 font-medium px-8 py-3 text-base rounded-lg transition-colors duration-200"
             >
               <Link href="/about">Why Choose Us</Link>
             </Button>

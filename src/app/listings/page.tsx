@@ -27,7 +27,7 @@ const fetchBikes = async (params: {
   sortOrder?: string
 }) => {
   const searchParams = new URLSearchParams()
-  
+
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== '' && value !== 'All Brands' && value !== 'All Conditions' && value !== 'All Locations') {
       searchParams.append(key, value.toString())
@@ -61,7 +61,7 @@ export default function ListingsPage() {
     maxPrice: '',
     search: ''
   })
-  const [sortBy, setSortBy] = useState('newest')
+  const [sortBy, setSortBy] = useState('Latest')
   const [showFilters, setShowFilters] = useState(false)
 
   const bikesPerPage = 12
@@ -95,7 +95,7 @@ export default function ListingsPage() {
       try {
         setLoading(true)
         setError(null)
-        
+
         const sortMapping: { [key: string]: { sortBy: string; sortOrder: string } } = {
           'Latest': { sortBy: 'createdAt', sortOrder: 'desc' },
           'Price: Low to High': { sortBy: 'price', sortOrder: 'asc' },
@@ -105,7 +105,7 @@ export default function ListingsPage() {
         }
 
         const sort = sortMapping[sortBy] || sortMapping['Latest']
-        
+
         const params = {
           page: currentPage,
           limit: bikesPerPage,
@@ -153,16 +153,8 @@ export default function ListingsPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
-      <main className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Bike Listings</h1>
-          <p className="text-muted-foreground text-lg">
-            Find your perfect bike from our verified collection
-          </p>
-        </div>
 
+      <main className="container mx-auto px-4 py-8">
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
           {/* Search Bar */}
@@ -172,36 +164,32 @@ export default function ListingsPage() {
               placeholder="Search bikes by brand, model, or title..."
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="pl-10 h-12"
+              className="pl-10 h-9"
             />
           </div>
 
-          {/* Filter Toggle */}
-          <div className="flex justify-between items-center">
+          {/* Filter Toggle and Sort */}
+          <div className="flex justify-end items-center gap-2">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2"
             >
               <Filter className="h-4 w-4" />
               Filters
             </Button>
-            
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
-                {totalBikes} bikes found
-              </span>
-              <Select value={sortBy} onValueChange={handleSort}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map(option => (
-                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
+            <Select value={sortBy} onValueChange={handleSort}>
+              <SelectTrigger className="w-44 h-9">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                {sortOptions.map(option => (
+                  <SelectItem key={option} value={option}>{option}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Filters Panel */}
@@ -211,7 +199,7 @@ export default function ListingsPage() {
                 <div>
                   <label className="text-sm font-medium mb-2 block">Brand</label>
                   <Select value={filters.brand} onValueChange={handleBrandFilter}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -221,11 +209,11 @@ export default function ListingsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium mb-2 block">Condition</label>
                   <Select value={filters.condition} onValueChange={handleConditionFilter}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -237,11 +225,11 @@ export default function ListingsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium mb-2 block">Location</label>
                   <Select value={filters.location} onValueChange={handleLocationFilter}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -251,7 +239,7 @@ export default function ListingsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium mb-2 block">Min Price (BDT)</label>
                   <Input
@@ -259,9 +247,10 @@ export default function ListingsPage() {
                     placeholder="0"
                     value={filters.minPrice}
                     onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                    className="h-9"
                   />
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium mb-2 block">Max Price (BDT)</label>
                   <Input
@@ -269,10 +258,11 @@ export default function ListingsPage() {
                     placeholder="1000000"
                     value={filters.maxPrice}
                     onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                    className="h-9"
                   />
                 </div>
               </div>
-              
+
               <div className="mt-4 flex gap-2">
                 <Button
                   variant="outline"
@@ -320,75 +310,73 @@ export default function ListingsPage() {
         {!loading && !error && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {bikes.map((bike) => (
-            <Card key={bike._id} className="bike-card overflow-hidden flex flex-col h-full">
-              <div className="relative">
-                <Image
-                  src={bike.images[0]}
-                  alt={bike.title}
-                  width={400}
-                  height={250}
-                  className="w-full h-48 object-cover"
-                />
-                {bike.isFeatured && (
-                  <Badge className="absolute top-2 left-2 bg-orange-500 text-white">
-                    Featured
-                  </Badge>
-                )}
+              <Card key={bike._id} className="bike-card py-0! overflow-hidden flex flex-col h-full">
+                <div className="relative">
+                  <Image
+                    src={bike.images[0]}
+                    alt={bike.title}
+                    width={400}
+                    height={250}
+                    className="w-full h-48 object-cover"
+                  />
+                  {bike.isFeatured && (
+                    <Badge className="absolute top-2 left-2 bg-orange-500 text-white">
+                      Featured
+                    </Badge>
+                  )}
+                </div>
 
-                <div className="absolute bottom-2 right-2 flex gap-1">
-                  <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">{bike.title}</CardTitle>
-                  <Badge className={getConditionColor(bike.condition)}>
-                    {bike.condition.charAt(0).toUpperCase() + bike.condition.slice(1)}
-                  </Badge>
-                </div>
-                <div className="text-2xl font-bold brand-orange">
-                  {formatPrice(bike.price)}
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-3 flex-1 flex flex-col">
-                <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    {bike.year}
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg">{bike.title}</CardTitle>
+                    <Badge className={getConditionColor(bike.condition)}>
+                      {bike.condition.charAt(0).toUpperCase() + bike.condition.slice(1)}
+                    </Badge>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Gauge className="h-4 w-4" />
-                    {bike.mileage.toLocaleString()} km
+                  <div className="text-2xl font-bold brand-orange">
+                    {formatPrice(bike.price)}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Fuel className="h-4 w-4" />
-                    {bike.brand} Engine
-                  </div>
-                  {/* <div className="flex items-center gap-1">
+                </CardHeader>
+
+                <CardContent className="space-y-3 flex-1 flex flex-col pb-4">
+                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      {bike.year}
+                    </div>
+                    {
+                      bike.mileage && (
+                        <div className="flex items-center gap-1">
+                          <Gauge className="h-4 w-4" />
+                          {bike.mileage.toLocaleString()} km
+                        </div>
+                      )
+                    }
+                    <div className="flex items-center gap-1">
+                      <Fuel className="h-4 w-4" />
+                      {bike.brand} Engine
+                    </div>
+                    {/* <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
                     {bike.}
                   </div> */}
-                </div>
-                
-                <p className="text-sm text-muted-foreground line-clamp-2 flex-1">
-                  {bike.description}
-                </p>
-                
-                <div className="mt-auto">
-                  <Button asChild className="w-full bg-brand-orange hover-brand-orange">
-                    <Link href={`/listings/${bike._id}`}>
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </div>
+
+                  <p className="text-sm text-muted-foreground line-clamp-2 flex-1">
+                    {bike.description}
+                  </p>
+
+                  <div className="mt-auto">
+                    <Button asChild className="w-full bg-brand-orange hover-brand-orange">
+                      <Link href={`/listings/${bike._id}`}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
 
@@ -402,7 +390,7 @@ export default function ListingsPage() {
             >
               Previous
             </Button>
-            
+
             <div className="flex gap-1">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 const page = i + 1
@@ -418,7 +406,7 @@ export default function ListingsPage() {
                 )
               })}
             </div>
-            
+
             <Button
               variant="outline"
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
