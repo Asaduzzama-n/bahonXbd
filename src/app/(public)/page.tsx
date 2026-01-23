@@ -5,8 +5,6 @@ import Link from "next/link"
 import { ArrowRight, Award, CheckCircle, Clock, Star, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
 import { FeaturedBikes } from "@/components/featured-bikes"
 import { RecentlySold } from "@/components/recently-sold"
@@ -91,7 +89,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
 
       {/* Hero Section */}
       <HeroSection platformStats={platformStats} />
@@ -190,7 +187,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
     </div>
   )
 }
