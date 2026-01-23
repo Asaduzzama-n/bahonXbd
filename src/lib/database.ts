@@ -2,7 +2,8 @@ import mongoose from 'mongoose'
 import { User, Bike, PurchaseOrder, BikeWashLocation, Expense, Partner, PublicInfo } from './models'
 import { string } from 'zod'
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bahonXbd'
+const MONGODB_URI = process.env.MONGODB_URI
+console.log('MONGODB_URI:', MONGODB_URI)
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local')
@@ -43,7 +44,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
       socketTimeoutMS: 45000,
     }
 
-    cached!.promise = mongoose.connect(MONGODB_URI, opts)
+    cached!.promise = mongoose.connect(MONGODB_URI!, opts)
   }
 
   try {

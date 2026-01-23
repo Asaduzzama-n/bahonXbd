@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import mongoose from 'mongoose'
 import { connectToDatabase } from '@/lib/database'
 import { BikeModel } from '@/lib/database'
 import {
@@ -10,8 +11,15 @@ import {
 const getFeaturedBikes = async (request: NextRequest) => {
   await connectToDatabase()
 
+
+
   const { searchParams } = new URL(request.url)
   const limit = parseInt(searchParams.get('limit') || '6')
+
+
+  const test = await BikeModel.countDocuments()
+
+  console.log('Test:', test)
 
   // Find featured bikes that are active
   const bikes = await BikeModel
@@ -34,6 +42,7 @@ const getFeaturedBikes = async (request: NextRequest) => {
     .limit(limit)
     .lean()
 
+  console.log('Featured bikes found:', bikes.length)
   return sendSuccessResponse({ data: bikes, message: 'Featured bikes retrieved successfully', statusCode: 200 })
 }
 

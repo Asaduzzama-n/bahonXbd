@@ -38,8 +38,8 @@ export function Navigation() {
                 key={item.name}
                 href={item.href}
                 className={`text-sm font-medium transition-colors ${pathname === item.href
-                    ? 'text-primary'
-                    : 'text-foreground hover:text-primary'
+                  ? 'text-primary'
+                  : 'text-foreground hover:text-primary'
                   }`}
               >
                 {item.name}
@@ -54,7 +54,7 @@ export function Navigation() {
             {/* Mobile Menu */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-primary/10 text-primary">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>

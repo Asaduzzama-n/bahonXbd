@@ -3,6 +3,8 @@ import { BikeModel, connectToDatabase } from '../src/lib/database'
 
 const sampleBikes = [
     {
+        bikeNumber: 'DHA-KA-12-3456',
+        chassisNumber: 'HONDA1234567890',
         title: 'Honda CB Shine 125 - Excellent Condition',
         description: 'Well-maintained Honda CB Shine 125 with low mileage. Perfect for daily commuting. Single owner, all documents available.',
         brand: 'Honda',
@@ -49,6 +51,8 @@ const sampleBikes = [
         views: 0
     },
     {
+        bikeNumber: 'DHA-LA-23-4567',
+        chassisNumber: 'YAMAHA2345678901',
         title: 'Yamaha FZS V3 - Sporty Performance',
         description: 'Powerful Yamaha FZS V3 in pristine condition. Great for both city rides and highway cruising. Well serviced and maintained.',
         brand: 'Yamaha',
@@ -94,6 +98,8 @@ const sampleBikes = [
         views: 0
     },
     {
+        bikeNumber: 'DHA-MA-34-5678',
+        chassisNumber: 'HERO3456789012',
         title: 'Hero Splendor Plus - Fuel Efficient',
         description: 'Reliable Hero Splendor Plus, perfect for economical daily commuting. Low maintenance cost and excellent fuel efficiency.',
         brand: 'Hero',
@@ -136,6 +142,8 @@ const sampleBikes = [
         views: 0
     },
     {
+        bikeNumber: 'DHA-NA-45-6789',
+        chassisNumber: 'BAJAJ4567890123',
         title: 'Bajaj Pulsar NS160 - Street Fighter',
         description: 'Aggressive styling Bajaj Pulsar NS160. Perfect for enthusiasts who love sporty bikes. Well maintained with regular servicing.',
         brand: 'Bajaj',
@@ -180,6 +188,8 @@ const sampleBikes = [
         views: 0
     },
     {
+        bikeNumber: 'DHA-PA-56-7890',
+        chassisNumber: 'TVS5678901234',
         title: 'TVS Apache RTR 160 4V - Race Tuned',
         description: 'High-performance TVS Apache RTR 160 4V with race-tuned fuel injection. Excellent handling and power delivery.',
         brand: 'TVS',
@@ -226,6 +236,8 @@ const sampleBikes = [
         views: 0
     },
     {
+        bikeNumber: 'DHA-RA-67-8901',
+        chassisNumber: 'SUZUKI6789012345',
         title: 'Suzuki Gixxer SF - Fully Faired',
         description: 'Stunning Suzuki Gixxer SF with full fairing. Perfect blend of style and performance. Recently serviced.',
         brand: 'Suzuki',
@@ -269,6 +281,8 @@ const sampleBikes = [
         views: 0
     },
     {
+        bikeNumber: 'DHA-SA-78-9012',
+        chassisNumber: 'HONDA7890123456',
         title: 'Honda Hornet 2.0 - Premium Naked',
         description: 'Premium Honda Hornet 2.0 with aggressive styling. Powerful engine and advanced features. Like new condition.',
         brand: 'Honda',
@@ -316,6 +330,8 @@ const sampleBikes = [
         views: 0
     },
     {
+        bikeNumber: 'DHA-TA-89-0123',
+        chassisNumber: 'YAMAHA8901234567',
         title: 'Yamaha MT-15 - Street Fighter Beast',
         description: 'Iconic Yamaha MT-15 with aggressive street fighter styling. VVA technology for excellent performance. Well maintained.',
         brand: 'Yamaha',

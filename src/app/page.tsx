@@ -152,12 +152,12 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4 text-lg">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4 text-lg rounded-full shadow-lg shadow-primary/20 transition-all duration-300 hover:scale-105 active:scale-95">
                 <Link href="/listings" className="flex items-center gap-2">
                   Browse All Bikes <ArrowRight className="h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold px-8 py-4 text-lg">
+              <Button size="lg" variant="outline" className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold px-8 py-4 text-lg rounded-full transition-all duration-300 hover:scale-105 active:scale-95">
                 <Link href="/bike-wash">Bike Wash Services</Link>
               </Button>
             </div>

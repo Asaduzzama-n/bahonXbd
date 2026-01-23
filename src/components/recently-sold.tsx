@@ -62,7 +62,7 @@ export function RecentlySold({ soldBikes, loading = false }: RecentlySoldProps) 
               size="icon"
               onClick={prevSlide}
               disabled={currentIndex === 0}
-              className="border-border hover:bg-muted"
+              className="border-primary/20 hover:border-primary hover:bg-primary/10 h-8 w-8 rounded-full text-primary transition-all duration-300 disabled:opacity-30"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -71,7 +71,7 @@ export function RecentlySold({ soldBikes, loading = false }: RecentlySoldProps) 
               size="icon"
               onClick={nextSlide}
               disabled={currentIndex >= maxIndex}
-              className="border-border hover:bg-muted"
+              className="border-primary/20 hover:border-primary hover:bg-primary/10 h-8 w-8 rounded-full text-primary transition-all duration-300 disabled:opacity-30"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

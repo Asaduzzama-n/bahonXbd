@@ -49,27 +49,27 @@ export function FeaturedBikes({ featuredBikes, loading = false }: FeaturedBikesP
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={prevSlide}
                 disabled={currentIndex === 0}
-                className="border-border hover:bg-muted h-8 w-8 p-0"
+                className="border-primary/20 hover:border-primary hover:bg-primary/10 h-8 w-8 rounded-full p-0 text-primary transition-all duration-300 disabled:opacity-30"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={nextSlide}
                 disabled={currentIndex >= maxIndex}
-                className="border-border hover:bg-muted h-8 w-8 p-0"
+                className="border-primary/20 hover:border-primary hover:bg-primary/10 h-8 w-8 rounded-full p-0 text-primary transition-all duration-300 disabled:opacity-30"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
             <Link href="/listings">
-              <Button variant="outline" size="sm" className="border-border hover:bg-muted text-sm px-3 py-1.5">
+              <Button variant="outline" size="sm" className="border-primary/20 hover:border-primary hover:bg-primary/10 text-primary text-xs px-4 h-8 rounded-full transition-all duration-300">
                 View All
-                <ArrowRight className="ml-2 h-3 w-3" />
+                <ArrowRight className="ml-1.5 h-3 w-3" />
               </Button>
             </Link>
           </div>
@@ -139,7 +139,7 @@ export function FeaturedBikes({ featuredBikes, loading = false }: FeaturedBikesP
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-primary">৳{bike.price?.toLocaleString()}</span>
                         <Link href={`/listings/${bike._id}`}>
-                          <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                          <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-4 transition-all duration-300">
                             View Details
                           </Button>
                         </Link>
