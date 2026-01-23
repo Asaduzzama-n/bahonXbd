@@ -15,11 +15,11 @@ interface Review {
 
 const featuredReview: Review = {
     id: 1,
-    name: "Kamal Rahman",
+    name: "Kamal Hossain",
     company: "Dhaka Motors",
     review: "BahonXBD changed the way I buy bikes. Their transparent pricing, quality bikes, and professional service made the entire process smooth and trustworthy.",
     rating: 5,
-    image: "/testimonial-featured.jpg"
+    image: "/kamal-hossain.png"
 }
 
 const reviews: Review[] = [
@@ -167,8 +167,8 @@ export function CustomerTestimonials() {
                             key={index}
                             onClick={() => setActiveIndex(index)}
                             className={`h-2 rounded-full transition-all duration-300 ${index === activeIndex
-                                    ? "w-8 bg-primary"
-                                    : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                                ? "w-8 bg-primary"
+                                : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
                                 }`}
                             aria-label={`Go to review ${index + 1}`}
                         />

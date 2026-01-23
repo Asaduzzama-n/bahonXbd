@@ -80,7 +80,7 @@ export function FeaturedBikes({ featuredBikes, loading = false }: FeaturedBikesP
             <div className="flex gap-6">
               {[...Array(itemsPerView)].map((_, index) => (
                 <div key={index} className="flex-shrink-0" style={{ width: `calc(${100 / itemsPerView}% - 1rem)` }}>
-                  <Card className="border-border bg-card overflow-hidden h-full">
+                  <Card className="border-border bg-card overflow-hidden h-full py-0!">
                     <div className="relative overflow-hidden">
                       <div className="w-full h-48 bg-muted animate-pulse" />
                     </div>
@@ -106,7 +106,7 @@ export function FeaturedBikes({ featuredBikes, loading = false }: FeaturedBikesP
             >
               {featuredBikes.map((bike) => (
                 <div key={bike._id} className="flex-shrink-0" style={{ width: `calc(${100 / itemsPerView}% - 1rem)` }}>
-                  <Card className="group hover:shadow-lg transition-all duration-300 border-border  bg-card overflow-hidden h-full">
+                  <Card className="group py-0! hover:shadow-lg transition-all duration-300 border-border  bg-card overflow-hidden h-full">
                     <div className="relative overflow-hidden">
                       <img
                         src={bike.images?.[0] || '/placeholder-bike.jpg'}
